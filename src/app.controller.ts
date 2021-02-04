@@ -19,6 +19,4 @@ export class AppController {
   health(): HealthResponse {
     return new HealthResponse();
   }
-
-
 }

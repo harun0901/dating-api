@@ -12,10 +12,7 @@ import { UsersService } from './users.service';
 @ApiTags('User')
 @Controller('user')
 export class UsersController {
-
-  constructor(
-    private userService: UsersService,
-  ) {
+  constructor(private userService: UsersService) {
   }
 
   @ApiBearerAuth()
