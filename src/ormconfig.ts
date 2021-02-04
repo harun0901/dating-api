@@ -5,8 +5,6 @@ import * as dotenv from 'dotenv';
 // Check typeORM documentation for more information.
 export function ormConfig(): TypeOrmModuleOptions {
   const envConfig = dotenv.config().parsed;
-
-  console.log(envConfig.DATABASE_URL);
   const connectionOptions = PostgressConnectionStringParser.parse(envConfig.DATABASE_URL || process.env.DATABASE_URL);
   return {
     type: 'postgres',
