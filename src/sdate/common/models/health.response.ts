@@ -4,7 +4,7 @@ export class HealthResponse {
   @ApiProperty({ description: 'The api server health status. Always true.' })
   status: boolean;
 
-  constructor(status = false) {
+  constructor(status = true) {
     this.status = status;
   }
 }

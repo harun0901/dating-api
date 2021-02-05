@@ -20,7 +20,11 @@ export class AuthController {
   }
 
   @UseGuards(LocalAuthGuard)
-  @ApiOperation({ summary: 'Login with email and password.', description: 'Returns access token when the login is successful. Otherwise BadRequestException will occur.' })
+  @ApiOperation({
+    summary: 'Login with email and password.',
+    description:
+      'Returns access token when the login is successful. Otherwise BadRequestException will occur.',
+  })
   @ApiOkResponse({ type: TokenResponse, description: 'Returns access token.' })
   @ApiBody({ type: LoginDto })
   @Post('login')
@@ -28,19 +32,24 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: UserDto })
+  @ApiOperation({ summary: 'Get user info' })
+  @UseGuards(JwtAuthGuard)
+  @Get('')
+  getUser(@Request() req): Promise<UserDto> {
+    return this.authService.profileFromUserId(req.user.id);
+  }
+
   @ApiOkResponse({ type: TokenResponse })
-  @ApiOperation({ summary: 'Register a general user', description: 'Register a user with email address and full name.\n The new user will have "USER" role.' })
+  @ApiOperation({
+    summary: 'Register a general user',
+    description:
+      'Register a user with email address and full name.\n The new user will have "USER" role.',
+  })
   @Post('register')
   register(@Body() dto: RegisterUserDto): Promise<TokenResponse> {
     return this.authService.registerUser(dto);
   }
 
-  @ApiBearerAuth()
-  @ApiOkResponse({ type: UserDto })
-  @ApiOperation({ summary: 'Get user profile' })
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Request() req): Promise<UserDto> {
-    return this.authService.profileFromUserId(req.user.id);
-  }
 }
