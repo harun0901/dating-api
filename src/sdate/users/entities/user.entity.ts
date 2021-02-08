@@ -5,6 +5,7 @@ import { hash } from 'bcrypt';
 import { SoftDelete } from '../../common/core/soft-delete';
 import { UserRole } from '../enums';
 import { UserDto } from '../dtos/user.dto';
+import { ChatEntity } from '../../chat/entities/chat.entity';
 // import { BlogEntity } from '../../blog/entities/blog.entity';
 // import { CommentEntity } from '../../comment/entities/comment.entity';
 
@@ -22,6 +23,15 @@ export class UserEntity extends SoftDelete {
 
   @Column({ type: 'enum', enum: UserRole })
   role: UserRole;
+
+  @OneToMany(() => ChatEntity, (chat) => chat.sender)
+  sentChats?: ChatEntity[];
+
+  @OneToMany(() => ChatEntity, (chat) => chat.receiver)
+  receiveChats?: ChatEntity[];
+
+  // @OneToMany(() => BlogEntity, blog => blog.author)
+  // blogs?: BlogEntity[];
 
   // @OneToMany(() => BlogEntity, blog => blog.author)
   // blogs?: BlogEntity[];

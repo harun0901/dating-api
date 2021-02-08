@@ -37,7 +37,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Get user info' })
   @UseGuards(JwtAuthGuard)
   @Get('')
-  getUser(@Request() req): Promise<UserDto> {
+  getAuthInfo(@Request() req): Promise<UserDto> {
     return this.authService.profileFromUserId(req.user.id);
   }
 

@@ -10,7 +10,8 @@ import { getFromDto } from '../common/utils/repository.util';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
   ) {
   }
 
