@@ -16,6 +16,9 @@ export function ormConfig(): TypeOrmModuleOptions {
     username: connectionOptions.user,
     password: connectionOptions.password,
     database: connectionOptions.database,
+    extra: {
+      ssl: true,
+    },
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
 
     // We are using migrations, synchronize should be set to false.
