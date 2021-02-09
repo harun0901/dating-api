@@ -5,7 +5,6 @@ import * as dotenv from 'dotenv';
 // Check typeORM documentation for more information.
 export function ormConfig(): TypeOrmModuleOptions {
   dotenv.config();
-  console.log(process.env.DATABASE_URL);
   const connectionOptions = PostgressConnectionStringParser.parse(
     process.env.DATABASE_URL,
   );
@@ -17,7 +16,7 @@ export function ormConfig(): TypeOrmModuleOptions {
     password: connectionOptions.password,
     database: connectionOptions.database,
     extra: {
-      ssl: true,
+      ssl: false, //true for hosting.-test-mode
     },
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
 

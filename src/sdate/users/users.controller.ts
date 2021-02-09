@@ -1,4 +1,4 @@
-import { Body, Controller, Put, Get, Request, UseGuards, Param } from '@nestjs/common';
+import { Body, Controller, Put, Get, Request, UseGuards, Param, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -11,6 +11,7 @@ import { UserDto } from './dtos/user.dto';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
 import { ApiImplicitParam } from '@nestjs/swagger/dist/decorators/api-implicit-param.decorator';
+import { LimitCountDto } from './dtos/limitCount.dto';
 
 @ApiTags('User')
 @Controller('sdate/user')
@@ -46,5 +47,14 @@ export class UsersController {
   @ApiOkResponse({ type: UserEntity })
   async getUserById(@Request() req, @Param('userId') userId: string): Promise<UserEntity> {
     return await this.userService.findById(userId);
+  }
+
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Random Users by limit_count' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post('getRandomUserByLimit')
+  async getRandomUserByLimit(@Request() req, @Body() body: LimitCountDto): Promise<UserEntity[]> {
+    return await this.userService.findRandomUser(body.limit_count, req.user.id);
   }
 }

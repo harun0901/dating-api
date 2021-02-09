@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, ParseIntPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -46,5 +46,9 @@ export class UsersService {
 
   async find(): Promise<UserEntity[]> {
     return this.userRepository.find();
+  }
+
+  async findRandomUser(limit_count: string, ownerId: string): Promise<UserEntity[]> {
+    return this.userRepository.createQueryBuilder().where("id != :id", {id: `${ownerId}`}).orderBy('random()').limit(Number.parseInt(limit_count)).getMany();
   }
 }
