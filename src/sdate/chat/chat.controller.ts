@@ -1,4 +1,14 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ApiImplicitParam } from '@nestjs/swagger/dist/decorators/api-implicit-param.decorator';
 import * as multiparty from 'multiparty';
@@ -9,7 +19,10 @@ import { ChatService } from './chat.service';
 import { SendMessageDto } from './dtos/send-message.dto';
 import { ChatEntity } from './entities/chat.entity';
 import { UserEntity } from '../users/entities/user.entity';
-import { defaultTakeCount, messageDefaultTakeCount } from '../common/constants/general.constants';
+import {
+  defaultTakeCount,
+  messageDefaultTakeCount,
+} from '../common/constants/general.constants';
 import { SuccessResponse } from '../common/models/success-response';
 import { TotalUnreadDto } from './dtos/total-unread.dto';
 import { extractEmailFromString } from '../common/utils/string.util';
@@ -21,9 +34,8 @@ import { distinct } from 'rxjs/operators';
 @ApiTags('Chat')
 @Controller('sdate/chat')
 export class ChatController {
-
   static validateChatRequest(sender: UserEntity, receiver: UserEntity) {
-    if(!sender || !receiver) {
+    if (!sender || !receiver) {
       throw new BadRequestException('Invalid sender/receiver info');
     }
     //#test - comparing if the users can have a chat
@@ -32,23 +44,23 @@ export class ChatController {
   constructor(
     private readonly chatService: ChatService,
     private readonly userService: UsersService,
-  ) {
-  }
+  ) {}
 
   @Post('send-message')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: ChatDto })
-  async sendMessage(@Request() req, @Body() body: SendMessageDto): Promise<ChatDto> {
+  async sendMessage(
+    @Request() req,
+    @Body() body: SendMessageDto,
+  ): Promise<ChatDto> {
     const sender = await this.userService.findById(req.user.id);
     const receiver = await this.userService.findById(body.receiverId);
-    console.log(sender);
-    console.log(receiver);
     ChatController.validateChatRequest(sender, receiver);
     return this.chatService.sendMessage(body, sender, receiver);
   }
 
-/*
+  /*
   @Post(':chatId/message')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)

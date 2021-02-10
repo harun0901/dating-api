@@ -13,25 +13,32 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) {
-  }
+  ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && await compare(pass, user.password)) {
+    if (user && (await compare(pass, user.password))) {
       return user;
     }
     return null;
   }
 
   async login(user: any): Promise<TokenResponse> {
-    const payload = { fullName: user.fullName, id: user.id, email: user.email, role: user.role };
+    const payload = {
+      fullName: user.fullName,
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
     return {
       accessToken: this.jwtService.sign(payload),
     };
   }
 
-  async registerUser(dto: RegisterUserDto, throwError = true): Promise<TokenResponse> {
+  async registerUser(
+    dto: RegisterUserDto,
+    throwError = true,
+  ): Promise<TokenResponse> {
     const user = await this.usersService.addUser(dto, throwError);
     return this.login(user);
   }

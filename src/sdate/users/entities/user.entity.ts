@@ -6,8 +6,6 @@ import { SoftDelete } from '../../common/core/soft-delete';
 import { UserRole } from '../enums';
 import { UserDto } from '../dtos/user.dto';
 import { ChatEntity } from '../../chat/entities/chat.entity';
-// import { BlogEntity } from '../../blog/entities/blog.entity';
-// import { CommentEntity } from '../../comment/entities/comment.entity';
 
 @Entity('user')
 export class UserEntity extends SoftDelete {
@@ -24,20 +22,53 @@ export class UserEntity extends SoftDelete {
   @Column({ type: 'enum', enum: UserRole })
   role: UserRole;
 
+  @Column({ default: '' })
+  gender: string;
+
+  @Column({ default: '' })
+  lookingFor: string;
+
+  @Column({ default: '' })
+  body: string;
+
+  @Column({ default: '' })
+  education: string;
+
+  @Column({ default: '' })
+  interestedIn: string;
+
+  @Column({ default: '' })
+  kids: string;
+
+  @Column({ default: '' })
+  profession: string;
+
+  @Column({ default: '' })
+  relationshipStatus: string;
+
+  @Column({ default: '' })
+  smoker: string;
+
+  @Column({ default: '' })
+  language: string;
+
+  @Column({ default: '' })
+  height: string;
+
+  @Column({ default: '' })
+  alcohol: string;
+
+  @Column({ default: new Date() })
+  birthday: Date;
+
+  @Column({ default: '' })
+  avatar: string;
+
   @OneToMany(() => ChatEntity, (chat) => chat.sender)
   sentChats?: ChatEntity[];
 
   @OneToMany(() => ChatEntity, (chat) => chat.receiver)
   receiveChats?: ChatEntity[];
-
-  // @OneToMany(() => BlogEntity, blog => blog.author)
-  // blogs?: BlogEntity[];
-
-  // @OneToMany(() => BlogEntity, blog => blog.author)
-  // blogs?: BlogEntity[];
-
-  // @OneToMany(() => CommentEntity, comment => comment.author)
-  // comments?: CommentEntity[];
 
   @BeforeInsert()
   preProcess() {
@@ -52,8 +83,20 @@ export class UserEntity extends SoftDelete {
       email: this.email,
       fullName: this.fullName,
       role: this.role,
-      // blogs: this.blogs?.map(blog => blog.toDto()),
-      // comments: this.comments?.map(comment => comment.toDto())
+      gender: this.gender,
+      lookingFor: this.lookingFor,
+      body: this.body,
+      education: this.education,
+      interestedIn: this.interestedIn,
+      kids: this.kids,
+      profession: this.profession,
+      relationshipStatus: this.relationshipStatus,
+      smoker: this.smoker,
+      language: this.language,
+      height: this.height,
+      alcohol: this.alcohol,
+      birthday: this.birthday,
+      avatar: this.avatar,
     };
   }
 }

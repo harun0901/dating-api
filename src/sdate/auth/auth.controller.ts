@@ -1,5 +1,18 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -7,17 +20,12 @@ import { UserDto } from '../users/dtos/user.dto';
 import { LoginDto } from './dtos/login.dto';
 import { RegisterUserDto } from './dtos/register-user.dto';
 import { TokenResponse } from '../common/models/token.response';
-
 import { AuthService } from './auth.service';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-
-  constructor(
-    private authService: AuthService,
-  ) {
-  }
+  constructor(private authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
   @ApiOperation({
@@ -51,5 +59,4 @@ export class AuthController {
   register(@Body() dto: RegisterUserDto): Promise<TokenResponse> {
     return this.authService.registerUser(dto);
   }
-
 }

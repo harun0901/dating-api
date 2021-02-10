@@ -1,4 +1,3 @@
-
 export enum MessageStatusType {
   Read = 'READ',
   Mailed = 'MAILED',

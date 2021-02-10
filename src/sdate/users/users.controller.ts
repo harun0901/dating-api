@@ -1,5 +1,19 @@
-import { Body, Controller, Put, Get, Request, UseGuards, Param, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Put,
+  Get,
+  Request,
+  UseGuards,
+  Param,
+  Post,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -16,11 +30,13 @@ import { LimitCountDto } from './dtos/limitCount.dto';
 @ApiTags('User')
 @Controller('sdate/user')
 export class UsersController {
-  constructor(private userService: UsersService) {
-  }
+  constructor(private userService: UsersService) {}
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Change role of the user. Only admin users can hava access to this api' })
+  @ApiOperation({
+    summary:
+      'Change role of the user. Only admin users can hava access to this api',
+  })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles([UserRole.Admin])
   @Put('change-role')
@@ -34,7 +50,12 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all users' })
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles([UserRole.Admin, UserRole.User, UserRole.Moderator, UserRole.Customer])
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
   @Get('getAll')
   async getAllUsers(@Request() req): Promise<UserEntity[]> {
     return await this.userService.find();
@@ -45,16 +66,21 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiImplicitParam({ name: 'userId', required: true })
   @ApiOkResponse({ type: UserEntity })
-  async getUserById(@Request() req, @Param('userId') userId: string): Promise<UserEntity> {
+  async getUserById(
+    @Request() req,
+    @Param('userId') userId: string,
+  ): Promise<UserEntity> {
     return await this.userService.findById(userId);
   }
-
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get Random Users by limit_count' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('getRandomUserByLimit')
-  async getRandomUserByLimit(@Request() req, @Body() body: LimitCountDto): Promise<UserEntity[]> {
+  async getRandomUserByLimit(
+    @Request() req,
+    @Body() body: LimitCountDto,
+  ): Promise<UserEntity[]> {
     return await this.userService.findRandomUser(body.limit_count, req.user.id);
   }
 }

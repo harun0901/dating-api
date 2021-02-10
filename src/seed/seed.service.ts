@@ -2,34 +2,23 @@ import { Injectable } from '@nestjs/common';
 import * as Faker from 'faker';
 
 import { UsersService } from '../sdate/users/users.service';
-import { mailDomain, seedAdminUser, seedGeneralUser, seedModeratorUser, seedPassword } from './data/user.data';
-import { UserRole } from '../sdate/users/enums';
 import {
-  seedBlogContentWordCount,
-  seedBlogCountPerUser,
-  seedBlogTitleWordCount,
-  seedCommentCountPerBlog,
-  seedCommentWordCount,
-  seedGeneralUserCount,
-  seedModeratorCount,
-} from './consts';
+  mailDomain,
+  seedAdminUser,
+  seedGeneralUser,
+  seedModeratorUser,
+  seedPassword,
+} from './data/user.data';
+import { UserRole } from '../sdate/users/enums';
+import { seedGeneralUserCount, seedModeratorCount } from './consts';
 import { UserEntity } from '../sdate/users/entities/user.entity';
-// import { BlogService } from '../blog/blog.service';
-// import { CommentService } from '../comment/comment.service';
 
 @Injectable()
 export class SeedService {
-  constructor(
-    private userService: UsersService,
-    // private blogService: BlogService,
-    // private commentService: CommentService,
-  ) {
-  }
+  constructor(private userService: UsersService) {}
 
   async start() {
     await this.seedUsers();
-    // await this.seedBlogs();
-    // await this.seedComments();
   }
 
   async seedUsers() {
@@ -58,10 +47,10 @@ export class SeedService {
     // seed general users
     console.log('Adding general users...');
     const defaultGeneralUser = await this.userService.addUser(seedGeneralUser);
-    defaultGeneralUser.role = UserRole.User;
+    defaultGeneralUser.role = UserRole.Customer;
     await this.userService.updateUser(defaultGeneralUser);
     for (let i = 0; i < seedGeneralUserCount; i++) {
-      await this.addUserWithRole(UserRole.User);
+      await this.addUserWithRole(UserRole.Customer);
     }
     console.log('Finished adding seed users.');
   }
@@ -117,4 +106,3 @@ export class SeedService {
     return this.userService.updateUser(user);
   }
 }
-

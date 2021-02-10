@@ -7,13 +7,18 @@ export function getFromDto<T>(dto: any, data: any, fields?: string[]): T {
   } else {
     properties = Object.keys(dto);
   }
-  properties.forEach(property => {
+  properties.forEach((property) => {
     data[property] = dto[property];
   });
   return data;
 }
 
-export function saveDtoToRepository<T>(dto: any, data: any, repository: Repository<T>, fields?: string[]): Promise<T> {
+export function saveDtoToRepository<T>(
+  dto: any,
+  data: any,
+  repository: Repository<T>,
+  fields?: string[],
+): Promise<T> {
   const obj = getFromDto<T>(dto, data, fields);
   return repository.save(obj);
 }

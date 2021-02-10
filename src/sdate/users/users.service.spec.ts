@@ -45,7 +45,7 @@ describe('UsersService', () => {
   it('addUser should add user with "USER" role when the email is available', async () => {
     const user = getFromDto<UserEntity>(addUserMockData, new UserEntity());
     jest.spyOn(service, 'findByEmail').mockReturnValue(null);
-    user.role = UserRole.User;
+    user.role = UserRole.Customer;
     const added = await service.addUser(addUserMockData);
     expect(added).toStrictEqual(user);
   });

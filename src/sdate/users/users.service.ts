@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, ParseIntPipe } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -12,8 +12,7 @@ export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
-  ) {
-  }
+  ) {}
 
   async findByEmail(email: string): Promise<UserEntity> {
     return this.userRepository.findOne({ email });
@@ -32,7 +31,7 @@ export class UsersService {
       return found;
     }
     const user = getFromDto<UserEntity>(dto, new UserEntity());
-    user.role = UserRole.User;
+    user.role = UserRole.Customer;
     return this.userRepository.save(user);
   }
 
@@ -48,7 +47,15 @@ export class UsersService {
     return this.userRepository.find();
   }
 
-  async findRandomUser(limit_count: string, ownerId: string): Promise<UserEntity[]> {
-    return this.userRepository.createQueryBuilder().where("id != :id", {id: `${ownerId}`}).orderBy('random()').limit(Number.parseInt(limit_count)).getMany();
+  async findRandomUser(
+    limit_count: string,
+    ownerId: string,
+  ): Promise<UserEntity[]> {
+    return this.userRepository
+      .createQueryBuilder()
+      .where('id != :id', { id: `${ownerId}` })
+      .orderBy('random()')
+      .limit(Number.parseInt(limit_count))
+      .getMany();
   }
 }
