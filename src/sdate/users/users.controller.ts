@@ -29,7 +29,7 @@ import { LimitCountDto } from './dtos/limitCount.dto';
 import { UserFactDto } from './dtos/userFact.dto';
 import { UserBasicDto } from './dtos/userBasic.dto';
 import { UserInfoDto } from './dtos/userInfo.dto';
-import { UserLikeDto } from './dtos/userLike.dto';
+import { UserIdDto } from './dtos/userId.dto';
 
 @ApiTags('User')
 @Controller('sdate/user')
@@ -126,9 +126,20 @@ export class UsersController {
     @Body() body: LimitCountDto,
   ): Promise<UserEntity[]> {
     const owner = await this.userService.findLikeRelationById(req.user.id);
-    const idList = owner.likedList.map((user) => user.id);
-    idList.push(req.user.id);
-    return await this.userService.findRandomUser(body.limit_count, idList);
+    let likeIdList = [];
+    let favIdList = [];
+    if (typeof owner.likedList !== 'undefined' && owner.likedList.length > 0) {
+      likeIdList = owner.likedList.map((user) => user.id);
+    }
+    if (
+      typeof owner.favoriteList !== 'undefined' &&
+      owner.favoriteList.length > 0
+    ) {
+      favIdList = owner.favoriteList.map((user) => user.id);
+    }
+    const totalList = likeIdList.concat(favIdList);
+    totalList.push(req.user.id);
+    return await this.userService.findRandomUser(body.limit_count, totalList);
   }
 
   @ApiBearerAuth()
@@ -144,7 +155,29 @@ export class UsersController {
   async getLikedUser(@Request() req): Promise<UserEntity[]> {
     const owner = await this.userService.findLikeRelationById(req.user.id);
     const idList = owner.likedList.map((user) => user.id);
-    return await this.userService.findLikedUser(idList);
+    if (idList.length === 0) {
+      return [];
+    }
+    return await this.userService.findUsersByIds(idList);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Favorite Users' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('getFavoriteUser')
+  async getFavoriteUser(@Request() req): Promise<UserEntity[]> {
+    const owner = await this.userService.findFavoriteRelationById(req.user.id);
+    const idList = owner.favoriteList.map((user) => user.id);
+    if (idList.length === 0) {
+      return [];
+    }
+    return await this.userService.findUsersByIds(idList);
   }
 
   @ApiBearerAuth()
@@ -224,7 +257,7 @@ export class UsersController {
   @Put('likeUser')
   async likeUser(
     @Request() req,
-    @Body() likeInfo: UserLikeDto,
+    @Body() likeInfo: UserIdDto,
   ): Promise<UserDto> {
     const likeUser = await this.userService.findById(likeInfo.id);
     let owner = await this.userService.findLikeRelationById(req.user.id);
@@ -247,12 +280,61 @@ export class UsersController {
   @Put('removeLikeUser')
   async removeLikeUser(
     @Request() req,
-    @Body() likeInfo: UserLikeDto,
+    @Body() likeInfo: UserIdDto,
   ): Promise<UserDto> {
     const likeUser = await this.userService.findById(likeInfo.id);
     let owner = await this.userService.findLikeRelationById(req.user.id);
     const index = owner.likedList.findIndex((user) => user.id === likeUser.id);
     owner.likedList.splice(index, 1);
+    owner = await this.userService.updateUser(owner);
+    return owner.toDto();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Add a favorite user',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('favoriteUser')
+  async favoriteUser(
+    @Request() req,
+    @Body() favoriteInfo: UserIdDto,
+  ): Promise<UserDto> {
+    const favoriteUser = await this.userService.findById(favoriteInfo.id);
+    let owner = await this.userService.findFavoriteRelationById(req.user.id);
+    owner.favoriteList.push(favoriteUser);
+    owner = await this.userService.updateUser(owner);
+    return owner.toDto();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Remove a favorite user',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('removeFavoriteUser')
+  async removeFavoriteUser(
+    @Request() req,
+    @Body() favoriteInfo: UserIdDto,
+  ): Promise<UserDto> {
+    const favoriteUser = await this.userService.findById(favoriteInfo.id);
+    let owner = await this.userService.findFavoriteRelationById(req.user.id);
+    const index = owner.favoriteList.findIndex(
+      (user) => user.id === favoriteUser.id,
+    );
+    owner.favoriteList.splice(index, 1);
     owner = await this.userService.updateUser(owner);
     return owner.toDto();
   }

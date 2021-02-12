@@ -29,6 +29,13 @@ export class UsersService {
     });
   }
 
+  async findFavoriteRelationById(id: string): Promise<UserEntity> {
+    return this.userRepository.findOne({
+      relations: ['favoriteList'],
+      where: { id },
+    });
+  }
+
   async addUser(dto: RegisterUserDto, throwErrors = true): Promise<UserEntity> {
     const found = await this.findByEmail(dto.email);
     if (found) {
@@ -66,7 +73,7 @@ export class UsersService {
       .getMany();
   }
 
-  async findLikedUser(idList: string[]): Promise<UserEntity[]> {
+  async findUsersByIds(idList: string[]): Promise<UserEntity[]> {
     return this.userRepository
       .createQueryBuilder()
       .where('id IN (:...ids)', { ids: idList })

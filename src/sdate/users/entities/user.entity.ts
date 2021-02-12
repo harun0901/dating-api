@@ -21,6 +21,10 @@ export class UserEntity extends SoftDelete {
   @JoinTable()
   likedList: UserEntity[];
 
+  @ManyToMany(() => UserEntity, (UserEntity) => UserEntity.favoriteList)
+  @JoinTable()
+  favoriteList: UserEntity[];
+
   @Column()
   fullName: string;
 
