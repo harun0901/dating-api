@@ -1,4 +1,11 @@
-import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { hash } from 'bcrypt';
 
@@ -6,9 +13,14 @@ import { SoftDelete } from '../../common/core/soft-delete';
 import { UserRole } from '../enums';
 import { UserDto } from '../dtos/user.dto';
 import { ChatEntity } from '../../chat/entities/chat.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('user')
 export class UserEntity extends SoftDelete {
+  @ManyToMany(() => UserEntity, (UserEntity) => UserEntity.likedList)
+  @JoinTable()
+  likedList: UserEntity[];
+
   @Column()
   fullName: string;
 
@@ -64,6 +76,21 @@ export class UserEntity extends SoftDelete {
   @Column({ default: '' })
   avatar: string;
 
+  @Column({ default: '' })
+  location: string;
+
+  @Column({ default: '' })
+  about: string;
+
+  @Column({ default: '' })
+  paypal: string;
+
+  @Column({ default: 0 })
+  balance: number;
+
+  @Column({ default: 1 })
+  state: number;
+
   @OneToMany(() => ChatEntity, (chat) => chat.sender)
   sentChats?: ChatEntity[];
 
@@ -97,6 +124,11 @@ export class UserEntity extends SoftDelete {
       alcohol: this.alcohol,
       birthday: this.birthday,
       avatar: this.avatar,
+      location: this.location,
+      about: this.about,
+      paypal: this.paypal,
+      balance: this.balance,
+      state: this.state,
     };
   }
 }

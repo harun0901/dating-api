@@ -2,20 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { UserRole } from '../enums';
 import { CommonDto } from '../../common/dtos/common.dto';
+import { Column } from 'typeorm';
+import { Exclude } from 'class-transformer';
 
-export class UserDto extends CommonDto {
-  @ApiProperty({ description: `the user's full name` })
-  fullName: string;
-
-  @ApiProperty({ description: `the user's email address` })
-  email: string;
-
-  @ApiProperty({ type: 'enum', enum: UserRole, description: `the user's role` })
-  role: UserRole;
-
-  @ApiProperty({ description: `the user's gender` })
-  gender: string;
-
+export class UserFactDto {
   @ApiProperty({ description: `the user's looking for option` })
   lookingFor: string;
 
@@ -48,25 +38,4 @@ export class UserDto extends CommonDto {
 
   @ApiProperty({ description: `the user's alcohol` })
   alcohol: string;
-
-  @ApiProperty({ description: `the user's birthday` })
-  birthday: Date;
-
-  @ApiProperty({ description: `the user's avatar` })
-  avatar: string;
-
-  @ApiProperty({ description: `the user's location` })
-  location: string;
-
-  @ApiProperty({ description: `the user's description` })
-  about: string;
-
-  @ApiProperty({ description: `the user's paypal address` })
-  paypal: string;
-
-  @ApiProperty({ description: `the user's balance` })
-  balance: number;
-
-  @ApiProperty({ description: `the user's state` })
-  state: number;
 }

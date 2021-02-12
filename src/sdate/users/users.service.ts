@@ -22,6 +22,13 @@ export class UsersService {
     return this.userRepository.findOne({ id });
   }
 
+  async findLikeRelationById(id: string): Promise<UserEntity> {
+    return this.userRepository.findOne({
+      relations: ['likedList'],
+      where: { id },
+    });
+  }
+
   async addUser(dto: RegisterUserDto, throwErrors = true): Promise<UserEntity> {
     const found = await this.findByEmail(dto.email);
     if (found) {
@@ -49,13 +56,20 @@ export class UsersService {
 
   async findRandomUser(
     limit_count: string,
-    ownerId: string,
+    idList: string[],
   ): Promise<UserEntity[]> {
     return this.userRepository
       .createQueryBuilder()
-      .where('id != :id', { id: `${ownerId}` })
+      .where('id NOT IN (:...ids)', { ids: idList })
       .orderBy('random()')
       .limit(Number.parseInt(limit_count))
+      .getMany();
+  }
+
+  async findLikedUser(idList: string[]): Promise<UserEntity[]> {
+    return this.userRepository
+      .createQueryBuilder()
+      .where('id IN (:...ids)', { ids: idList })
       .getMany();
   }
 }
