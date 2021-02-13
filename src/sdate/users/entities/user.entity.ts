@@ -14,6 +14,7 @@ import { UserRole } from '../enums';
 import { UserDto } from '../dtos/user.dto';
 import { ChatEntity } from '../../chat/entities/chat.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { NotificationEntity } from '../../notification/entities/notification.entity';
 
 @Entity('user')
 export class UserEntity extends SoftDelete {
@@ -100,6 +101,12 @@ export class UserEntity extends SoftDelete {
 
   @OneToMany(() => ChatEntity, (chat) => chat.receiver)
   receiveChats?: ChatEntity[];
+
+  @OneToMany(() => NotificationEntity, (notification) => notification.sender)
+  sentNotifications?: NotificationEntity[];
+
+  @OneToMany(() => NotificationEntity, (notification) => notification.receiver)
+  receiveNotifications?: NotificationEntity[];
 
   @BeforeInsert()
   preProcess() {
