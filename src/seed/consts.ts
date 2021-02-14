@@ -1,2 +1,2 @@
-export const seedModeratorCount = 3;
+export const seedModeratorCount = 5;
 export const seedGeneralUserCount = 3;

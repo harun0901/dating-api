@@ -4,12 +4,12 @@ import {
   Controller,
   Get,
   Param,
-  Post,
+  Post, Put,
   Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiImplicitParam } from '@nestjs/swagger/dist/decorators/api-implicit-param.decorator';
 import * as multiparty from 'multiparty';
 import { fromString } from 'html-to-text';
@@ -30,6 +30,10 @@ import { UserRole } from '../users/enums/index';
 import { UsersService } from '../users/users.service';
 import { ChatDto } from './dtos/chat.dto';
 import { distinct } from 'rxjs/operators';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserIdDto } from '../users/dtos/userId.dto';
+import { UserDto } from '../users/dtos/user.dto';
 
 @ApiTags('Chat')
 @Controller('sdate/chat')
@@ -46,10 +50,10 @@ export class ChatController {
     private readonly userService: UsersService,
   ) {}
 
-  @Post('send-message')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: ChatDto })
+  @Post('send-message')
   async sendMessage(
     @Request() req,
     @Body() body: SendMessageDto,
@@ -58,6 +62,50 @@ export class ChatController {
     const receiver = await this.userService.findById(body.receiverId);
     ChatController.validateChatRequest(sender, receiver);
     return this.chatService.sendMessage(body, sender, receiver);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get before 10 chat list',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('getPartChatList')
+  async getPartChatList(
+    @Request() req,
+    @Body() customerInfo: UserIdDto,
+  ): Promise<ChatDto[]> {
+    const customerUser = await this.userService.findById(customerInfo.id);
+    const owner = await this.userService.findById(req.user.id);
+    const res = await this.chatService.getPartChatList(customerUser, owner);
+    return res;
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get before all chat list',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('getAllChatList')
+  async getAllChatList(
+    @Request() req,
+    @Body() customerInfo: UserIdDto,
+  ): Promise<ChatDto[]> {
+    const customerUser = await this.userService.findById(customerInfo.id);
+    const owner = await this.userService.findById(req.user.id);
+    const res = await this.chatService.getAllChatList(customerUser, owner);
+    return res;
   }
 
   /*

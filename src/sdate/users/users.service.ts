@@ -1,11 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Like, Repository } from 'typeorm';
 
 import { UserRole } from './enums';
 import { UserEntity } from './entities/user.entity';
 import { RegisterUserDto } from '../auth/dtos/register-user.dto';
 import { getFromDto } from '../common/utils/repository.util';
+import { NotificationType } from '../notification/enums';
+import { UserSearchDto } from './dtos/userSearch.dto';
 
 @Injectable()
 export class UsersService {
@@ -25,8 +27,34 @@ export class UsersService {
   async findLikeRelationById(id: string): Promise<UserEntity> {
     return this.userRepository.findOne({
       relations: ['likedList'],
+      where: {
+        id
+      },
+    });
+  }
+
+  async findVisitUsers(id: string): Promise<UserEntity[]> {
+    const owner = await this.userRepository.findOne({
+      relations: [
+        'receiveNotifications',
+        'receiveNotifications.sender',
+        'receiveNotifications.receiver',
+      ],
       where: { id },
     });
+    const userIdList = [];
+    const res = owner.receiveNotifications
+      .filter((value) => value.pattern === NotificationType.Visit)
+      .map((item) => item.sender)
+      .filter((value, index, self) => {
+        if (userIdList.indexOf(value.id) >= 0) {
+          return false;
+        } else {
+          userIdList.push(value.id);
+          return true;
+        }
+      });
+    return res;
   }
 
   async findFavoriteRelationById(id: string): Promise<UserEntity> {
@@ -64,10 +92,28 @@ export class UsersService {
   async findRandomUser(
     limit_count: string,
     idList: string[],
+    searchKey: UserSearchDto,
   ): Promise<UserEntity[]> {
+    const curDate = new Date();
+    const endYear = curDate.getFullYear() - searchKey.startAge;
+    const startYear = curDate.getFullYear() - searchKey.endAge;
+    const startDate = new Date(startYear, 0, 1);
+    const endDate = new Date(endYear, 11, 31);
     return this.userRepository
       .createQueryBuilder()
       .where('id NOT IN (:...ids)', { ids: idList })
+      .andWhere('gender = (:lookingFor)', {
+        lookingFor: searchKey.lookingFor,
+      })
+      .andWhere('birthday >= (:startDate)', {
+        startDate: startDate,
+      })
+      .andWhere('birthday <= (:endDate)', {
+        endDate: endDate,
+      })
+      .andWhere('location like (:location)', {
+        location: `%${searchKey.location}%`,
+      })
       .orderBy('random()')
       .limit(Number.parseInt(limit_count))
       .getMany();

@@ -33,10 +33,6 @@ export class ChatService {
   constructor(
     @InjectRepository(ChatEntity)
     private chatRepository: Repository<ChatEntity>,
-    // @InjectRepository(Message)
-    // private messageRepository: Repository<Message>,
-    // @InjectRepository(MessageStatus)
-    // private messageStatusRepository: Repository<MessageStatus>,
     private readonly socketService: SocketService,
   ) {}
 
@@ -62,6 +58,59 @@ export class ChatService {
     return res.toDto();
   }
 
+  async getPartChatList(
+    customer: UserEntity,
+    owner: UserEntity,
+  ): Promise<ChatDto[]> {
+    const list = await this.chatRepository.find({
+      relations: ['sender', 'receiver'],
+      where: [
+        {
+          sender: customer,
+          receiver: owner,
+          receiver_delete: ChatDefault.RECEIVER_DELETE,
+        },
+        {
+          sender: owner,
+          receiver: customer,
+          sender_delete: ChatDefault.SENDER_DELETE,
+        },
+      ],
+      order: {
+        createdAt: 'DESC',
+      },
+      skip: 0,
+      take: 10,
+    });
+    const res = list.map((item) => item.toDto());
+    return res.reverse();
+  }
+
+  async getAllChatList(
+    customer: UserEntity,
+    owner: UserEntity,
+  ): Promise<ChatDto[]> {
+    const list = await this.chatRepository.find({
+      relations: ['sender', 'receiver'],
+      where: [
+        {
+          sender: customer,
+          receiver: owner,
+          receiver_delete: ChatDefault.RECEIVER_DELETE,
+        },
+        {
+          sender: owner,
+          receiver: customer,
+          sender_delete: ChatDefault.SENDER_DELETE,
+        },
+      ],
+      order: {
+        createdAt: 'ASC',
+      },
+    });
+    const res = list.map((item) => item.toDto());
+    return res;
+  }
   /*
   findChatById(id: string): Promise<Chat> {
     return this.chatRepository.findOne({

@@ -4,3 +4,8 @@ export enum UserRole {
   Moderator = 'MODERATOR',
   Customer = 'USER',
 }
+
+export enum Gender {
+  Man = 'Man',
+  Woman = 'Woman',
+}

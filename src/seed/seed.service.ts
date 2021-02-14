@@ -9,7 +9,7 @@ import {
   seedModeratorUser,
   seedPassword,
 } from './data/user.data';
-import { UserRole } from '../sdate/users/enums';
+import { Gender, UserRole } from '../sdate/users/enums';
 import { seedGeneralUserCount, seedModeratorCount } from './consts';
 import { UserEntity } from '../sdate/users/entities/user.entity';
 
@@ -33,12 +33,14 @@ export class SeedService {
     console.log('Adding admin user...');
     const admin = await this.userService.addUser(seedAdminUser);
     admin.role = UserRole.Admin;
+    admin.gender = Gender.Man;
     await this.userService.updateUser(admin);
 
     // seed moderator users
     console.log('Adding moderator users...');
     const defaultModerator = await this.userService.addUser(seedModeratorUser);
     defaultModerator.role = UserRole.Moderator;
+    defaultModerator.gender = Gender.Woman;
     await this.userService.updateUser(defaultModerator);
     for (let i = 0; i < seedModeratorCount; i++) {
       await this.addUserWithRole(UserRole.Moderator);
@@ -48,6 +50,7 @@ export class SeedService {
     console.log('Adding general users...');
     const defaultGeneralUser = await this.userService.addUser(seedGeneralUser);
     defaultGeneralUser.role = UserRole.Customer;
+    defaultGeneralUser.gender = Gender.Man;
     await this.userService.updateUser(defaultGeneralUser);
     for (let i = 0; i < seedGeneralUserCount; i++) {
       await this.addUserWithRole(UserRole.Customer);

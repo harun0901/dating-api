@@ -30,6 +30,9 @@ import { UserFactDto } from './dtos/userFact.dto';
 import { UserBasicDto } from './dtos/userBasic.dto';
 import { UserInfoDto } from './dtos/userInfo.dto';
 import { UserIdDto } from './dtos/userId.dto';
+import { UserSearchDto } from './dtos/userSearch.dto';
+import { Between, Like } from 'typeorm';
+import { userRandomDto } from './dtos/userRandom.dto';
 
 @ApiTags('User')
 @Controller('sdate/user')
@@ -123,7 +126,7 @@ export class UsersController {
   @Post('getRandomUserByLimit')
   async getRandomUserByLimit(
     @Request() req,
-    @Body() body: LimitCountDto,
+    @Body() body: userRandomDto,
   ): Promise<UserEntity[]> {
     const owner = await this.userService.findLikeRelationById(req.user.id);
     let likeIdList = [];
@@ -139,7 +142,11 @@ export class UsersController {
     }
     const totalList = likeIdList.concat(favIdList);
     totalList.push(req.user.id);
-    return await this.userService.findRandomUser(body.limit_count, totalList);
+    return await this.userService.findRandomUser(
+      body.limit_count,
+      totalList,
+      body.searchKey,
+    );
   }
 
   @ApiBearerAuth()
@@ -151,10 +158,31 @@ export class UsersController {
     UserRole.Moderator,
     UserRole.Customer,
   ])
-  @Get('getLikedUser')
-  async getLikedUser(@Request() req): Promise<UserEntity[]> {
+  @Post('getLikedUser')
+  async getLikedUser(
+    @Request() req,
+    @Body() dto: UserSearchDto,
+  ): Promise<UserEntity[]> {
     const owner = await this.userService.findLikeRelationById(req.user.id);
-    const idList = owner.likedList.map((user) => user.id);
+    const curDate = new Date();
+    const endYear = curDate.getFullYear() - dto.startAge;
+    const startYear = curDate.getFullYear() - dto.endAge;
+    const startDate = new Date(startYear, 0, 1);
+    const endDate = new Date(endYear, 11, 31);
+    const idList = owner.likedList
+      .filter((item) => {
+        if (
+          item.gender == dto.lookingFor &&
+          item.location.includes(dto.location) &&
+          item.birthday >= startDate &&
+          item.birthday <= endDate
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+      .map((user) => user.id);
     if (idList.length === 0) {
       return [];
     }
@@ -170,14 +198,70 @@ export class UsersController {
     UserRole.Moderator,
     UserRole.Customer,
   ])
-  @Get('getFavoriteUser')
-  async getFavoriteUser(@Request() req): Promise<UserEntity[]> {
+  @Post('getFavoriteUser')
+  async getFavoriteUser(
+    @Request() req,
+    @Body() dto: UserSearchDto,
+  ): Promise<UserEntity[]> {
     const owner = await this.userService.findFavoriteRelationById(req.user.id);
-    const idList = owner.favoriteList.map((user) => user.id);
+    const curDate = new Date();
+    const endYear = curDate.getFullYear() - dto.startAge;
+    const startYear = curDate.getFullYear() - dto.endAge;
+    const startDate = new Date(startYear, 0, 1);
+    const endDate = new Date(endYear, 11, 31);
+    const idList = owner.favoriteList
+      .filter((item) => {
+        if (
+          item.gender == dto.lookingFor &&
+          item.location.includes(dto.location) &&
+          item.birthday >= startDate &&
+          item.birthday <= endDate
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+      .map((user) => user.id);
     if (idList.length === 0) {
       return [];
     }
     return await this.userService.findUsersByIds(idList);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Visit Users' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Post('getVisitUser')
+  async getVisitUser(
+    @Request() req,
+    @Body() dto: UserSearchDto,
+  ): Promise<UserEntity[]> {
+    let res = await this.userService.findVisitUsers(req.user.id);
+    const curDate = new Date();
+    const endYear = curDate.getFullYear() - dto.startAge;
+    const startYear = curDate.getFullYear() - dto.endAge;
+    const startDate = new Date(startYear, 0, 1);
+    const endDate = new Date(endYear, 11, 31);
+    res = res.filter((item) => {
+      if (
+        item.gender == dto.lookingFor &&
+        item.location.includes(dto.location) &&
+        item.birthday >= startDate &&
+        item.birthday <= endDate
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    return res;
   }
 
   @ApiBearerAuth()

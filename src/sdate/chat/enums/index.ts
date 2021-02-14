@@ -8,3 +8,8 @@ export enum ChatDefault {
   RECEIVER_DELETE = 0,
   SEEN = 0,
 }
+
+export enum ChatValues {
+  DELETED = 1,
+  SEEN = 1,
+}
