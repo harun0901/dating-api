@@ -164,25 +164,30 @@ export class UsersController {
     @Body() dto: UserSearchDto,
   ): Promise<UserEntity[]> {
     const owner = await this.userService.findLikeRelationById(req.user.id);
-    const curDate = new Date();
-    const endYear = curDate.getFullYear() - dto.startAge;
-    const startYear = curDate.getFullYear() - dto.endAge;
-    const startDate = new Date(startYear, 0, 1);
-    const endDate = new Date(endYear, 11, 31);
-    const idList = owner.likedList
-      .filter((item) => {
-        if (
-          item.gender == dto.lookingFor &&
-          item.location.includes(dto.location) &&
-          item.birthday >= startDate &&
-          item.birthday <= endDate
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      })
-      .map((user) => user.id);
+    let idList = [];
+    if (dto.ignoreFlag) {
+      idList = owner.likedList.map((user) => user.id);
+    } else {
+      const curDate = new Date();
+      const endYear = curDate.getFullYear() - dto.startAge;
+      const startYear = curDate.getFullYear() - dto.endAge;
+      const startDate = new Date(startYear, 0, 1);
+      const endDate = new Date(endYear, 11, 31);
+      idList = owner.likedList
+        .filter((item) => {
+          if (
+            item.gender == dto.lookingFor &&
+            item.location.includes(dto.location) &&
+            item.birthday >= startDate &&
+            item.birthday <= endDate
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        })
+        .map((user) => user.id);
+    }
     if (idList.length === 0) {
       return [];
     }
@@ -204,25 +209,30 @@ export class UsersController {
     @Body() dto: UserSearchDto,
   ): Promise<UserEntity[]> {
     const owner = await this.userService.findFavoriteRelationById(req.user.id);
-    const curDate = new Date();
-    const endYear = curDate.getFullYear() - dto.startAge;
-    const startYear = curDate.getFullYear() - dto.endAge;
-    const startDate = new Date(startYear, 0, 1);
-    const endDate = new Date(endYear, 11, 31);
-    const idList = owner.favoriteList
-      .filter((item) => {
-        if (
-          item.gender == dto.lookingFor &&
-          item.location.includes(dto.location) &&
-          item.birthday >= startDate &&
-          item.birthday <= endDate
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      })
-      .map((user) => user.id);
+    let idList = [];
+    if (dto.ignoreFlag) {
+      idList = owner.favoriteList.map((user) => user.id);
+    } else {
+      const curDate = new Date();
+      const endYear = curDate.getFullYear() - dto.startAge;
+      const startYear = curDate.getFullYear() - dto.endAge;
+      const startDate = new Date(startYear, 0, 1);
+      const endDate = new Date(endYear, 11, 31);
+      idList = owner.favoriteList
+        .filter((item) => {
+          if (
+            item.gender == dto.lookingFor &&
+            item.location.includes(dto.location) &&
+            item.birthday >= startDate &&
+            item.birthday <= endDate
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        })
+        .map((user) => user.id);
+    }
     if (idList.length === 0) {
       return [];
     }
@@ -244,23 +254,25 @@ export class UsersController {
     @Body() dto: UserSearchDto,
   ): Promise<UserEntity[]> {
     let res = await this.userService.findVisitUsers(req.user.id);
-    const curDate = new Date();
-    const endYear = curDate.getFullYear() - dto.startAge;
-    const startYear = curDate.getFullYear() - dto.endAge;
-    const startDate = new Date(startYear, 0, 1);
-    const endDate = new Date(endYear, 11, 31);
-    res = res.filter((item) => {
-      if (
-        item.gender == dto.lookingFor &&
-        item.location.includes(dto.location) &&
-        item.birthday >= startDate &&
-        item.birthday <= endDate
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    });
+    if (!dto.ignoreFlag) {
+      const curDate = new Date();
+      const endYear = curDate.getFullYear() - dto.startAge;
+      const startYear = curDate.getFullYear() - dto.endAge;
+      const startDate = new Date(startYear, 0, 1);
+      const endDate = new Date(endYear, 11, 31);
+      res = res.filter((item) => {
+        if (
+          item.gender == dto.lookingFor &&
+          item.location.includes(dto.location) &&
+          item.birthday >= startDate &&
+          item.birthday <= endDate
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    }
     return res;
   }
 

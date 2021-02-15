@@ -12,4 +12,7 @@ export class UserSearchDto {
 
   @ApiProperty({ description: `the location option` })
   location: string;
+
+  @ApiProperty({ description: `the ignore option` })
+  ignoreFlag: boolean;
 }

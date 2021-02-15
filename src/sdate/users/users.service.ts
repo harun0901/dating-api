@@ -28,7 +28,7 @@ export class UsersService {
     return this.userRepository.findOne({
       relations: ['likedList'],
       where: {
-        id
+        id,
       },
     });
   }
@@ -94,29 +94,38 @@ export class UsersService {
     idList: string[],
     searchKey: UserSearchDto,
   ): Promise<UserEntity[]> {
-    const curDate = new Date();
-    const endYear = curDate.getFullYear() - searchKey.startAge;
-    const startYear = curDate.getFullYear() - searchKey.endAge;
-    const startDate = new Date(startYear, 0, 1);
-    const endDate = new Date(endYear, 11, 31);
-    return this.userRepository
-      .createQueryBuilder()
-      .where('id NOT IN (:...ids)', { ids: idList })
-      .andWhere('gender = (:lookingFor)', {
-        lookingFor: searchKey.lookingFor,
-      })
-      .andWhere('birthday >= (:startDate)', {
-        startDate: startDate,
-      })
-      .andWhere('birthday <= (:endDate)', {
-        endDate: endDate,
-      })
-      .andWhere('location like (:location)', {
-        location: `%${searchKey.location}%`,
-      })
-      .orderBy('random()')
-      .limit(Number.parseInt(limit_count))
-      .getMany();
+    if (searchKey.ignoreFlag) {
+      return this.userRepository
+        .createQueryBuilder()
+        .where('id NOT IN (:...ids)', { ids: idList })
+        .orderBy('random()')
+        .limit(Number.parseInt(limit_count))
+        .getMany();
+    } else {
+      const curDate = new Date();
+      const endYear = curDate.getFullYear() - searchKey.startAge;
+      const startYear = curDate.getFullYear() - searchKey.endAge;
+      const startDate = new Date(startYear, 0, 1);
+      const endDate = new Date(endYear, 11, 31);
+      return this.userRepository
+        .createQueryBuilder()
+        .where('id NOT IN (:...ids)', { ids: idList })
+        .andWhere('gender = (:lookingFor)', {
+          lookingFor: searchKey.lookingFor,
+        })
+        .andWhere('birthday >= (:startDate)', {
+          startDate: startDate,
+        })
+        .andWhere('birthday <= (:endDate)', {
+          endDate: endDate,
+        })
+        .andWhere('location like (:location)', {
+          location: `%${searchKey.location}%`,
+        })
+        .orderBy('random()')
+        .limit(Number.parseInt(limit_count))
+        .getMany();
+    }
   }
 
   async findUsersByIds(idList: string[]): Promise<UserEntity[]> {
