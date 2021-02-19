@@ -57,6 +57,26 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({
     summary:
+      'Update the user avatar',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('updateAvatar')
+  async updateAvatar(@Request() req, @Body() dto: UserIdDto): Promise<UserDto> {
+    let owner = await this.userService.findById(req.user.id);
+    owner.avatar = dto.id;
+    owner = await this.userService.updateUser(owner);
+    return owner.toDto();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
       'Update the user fact info. Only admin users can hava access to change the other user fact info',
   })
   @UseGuards(JwtAuthGuard, RolesGuard)
