@@ -5,6 +5,8 @@ import { AuthModule } from './auth/auth.module';
 import { SocketModule } from './socket/socket.module';
 import { UploadModule } from './upload/upload.module';
 import { NotificationModule } from './notification/notification.module';
+import { TransactionModule } from './transaction/transaction.module';
+import { GiftModule } from './gift/gift.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { NotificationModule } from './notification/notification.module';
     SocketModule,
     UploadModule,
     NotificationModule,
+    TransactionModule,
+    GiftModule,
   ],
 })
 export class SdateModule {}

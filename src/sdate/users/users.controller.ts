@@ -55,10 +55,7 @@ export class UsersController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({
-    summary:
-      'Update the user avatar',
-  })
+  @ApiOperation({ summary: 'Update the user avatar' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles([
     UserRole.SuperAdmin,
