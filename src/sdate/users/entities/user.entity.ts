@@ -16,6 +16,7 @@ import { ChatEntity } from '../../chat/entities/chat.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { NotificationEntity } from '../../notification/entities/notification.entity';
 import { TransactionEntity } from '../../transaction/entities/transaction.entity';
+import { UploadEntity } from '../../upload/entities/upload.entity';
 
 @Entity('user')
 export class UserEntity extends SoftDelete {
@@ -111,6 +112,9 @@ export class UserEntity extends SoftDelete {
 
   @OneToMany(() => NotificationEntity, (notification) => notification.receiver)
   receiveNotifications?: NotificationEntity[];
+
+  @OneToMany(() => UploadEntity, (upload) => upload.uploader)
+  upload?: UploadEntity[];
 
   @BeforeInsert()
   preProcess() {
