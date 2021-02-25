@@ -13,6 +13,7 @@ import { UserIdDto } from '../users/dtos/userId.dto';
 import { UserDto } from '../users/dtos/user.dto';
 import { NotificationState, NotificationType } from './enums';
 import { NotificationIdDto } from './dtos/notificationId.dto';
+import { AddModeratorNotificationDto } from './dtos/addModeratorNotification.dto';
 
 @ApiTags('Notification')
 @Controller('sdate/notification')
@@ -31,6 +32,24 @@ export class NotificationController {
     @Body() body: AddNotificationDto,
   ): Promise<NotificationDto> {
     const owner = await this.userService.findById(req.user.id);
+    const receiver = await this.userService.findById(body.receiver_id);
+
+    return await this.notificationService.addNotification(
+      body,
+      owner,
+      receiver,
+    );
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Add a new notification' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post('addModeratorNotification')
+  async addModeratorNotification(
+    @Request() req,
+    @Body() body: AddModeratorNotificationDto,
+  ): Promise<NotificationDto> {
+    const owner = await this.userService.findById(body.sender_id);
     const receiver = await this.userService.findById(body.receiver_id);
 
     return await this.notificationService.addNotification(

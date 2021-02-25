@@ -1,14 +1,10 @@
-import {
-  MessageBody,
-  SubscribeMessage,
-  WebSocketGateway,
-  WebSocketServer,
-} from '@nestjs/websockets';
+import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 
 import { SocketService } from './socket.service';
 import { ChatDto } from '../chat/dtos/chat.dto';
 import { NotificationDto } from '../notification/dtos/notification.dto';
+import { UserRole } from '../users/enums';
 
 @WebSocketGateway()
 export class SocketGateway {
@@ -38,6 +34,11 @@ export class SocketGateway {
   }
 
   sendMessage(userId: string, message: ChatDto) {
-    this.server.emit(`${userId}_messages`, message);
+    const receiver = message.receiver;
+    if (receiver.role === UserRole.Moderator) {
+      this.server.emit(`sdate_messages`, message);
+    } else {
+      this.server.emit(`${userId}_messages`, message);
+    }
   }
 }
