@@ -11,9 +11,9 @@ export const mseedAdminUser = {
 };
 
 export const seedSuperAdminUser = {
-  fullName: 'Super Admin',
+  fullName: 'Aleksei Panov',
   email: 'superadmin@gmail.com',
-  password: 'pine',
+  password: 'pinepine',
   gender: 'Man',
 };
 
