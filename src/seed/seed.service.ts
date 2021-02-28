@@ -115,8 +115,8 @@ export class SeedService {
       gender: Faker.gender,
     });
     user.role = role;
-    user.birthday = Faker.date.between('1966-01-01', '2001-12-30');
-    user.avatar = Faker.image.imageUrl(150, 150, 'people');
+    user.birthday = Faker.date.between('1966-01-01', '2001-12-31');
+    // user.avatar = Faker.image.imageUrl(150, 150, 'people');
     user.avatar = `${Faker.image.imageUrl(
       150,
       150,
