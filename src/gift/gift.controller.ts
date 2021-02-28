@@ -24,6 +24,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { StateGiftDto } from './dtos/state-gift.dto';
 import { GiftState } from './enums';
+import { GiftDto } from './dtos/gift.dto';
 
 @ApiTags('Gift')
 @Controller('sdate/gift')
@@ -45,6 +46,15 @@ export class GiftController {
   async getByState(@Body() dto: StateGiftDto): Promise<GiftEntity[]> {
     return await this.giftService.findByState(dto.state);
   }
+
+  @Post('getByStateModerator')
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: GiftEntity })
+  async getByStateModerator(@Body() dto: StateGiftDto): Promise<GiftDto[]> {
+    const res = await this.giftService.findByState(dto.state);
+    return res.map((item) => item.toDto());
+  }
+
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Register a new gift' })
   @ApiOkResponse({ type: GiftEntity })

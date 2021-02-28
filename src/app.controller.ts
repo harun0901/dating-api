@@ -2,7 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 
 import { AppService } from './app.service';
-import { HealthResponse } from './sdate/common/models/health.response';
+import { HealthResponse } from './common/models/health.response';
 
 @Controller()
 export class AppController {

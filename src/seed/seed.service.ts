@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import * as Faker from 'faker';
 
-import { UsersService } from '../sdate/users/users.service';
+import { UsersService } from '../users/users.service';
 import {
   mailDomain,
   seedAdminUser,
   seedGeneralUser,
   seedModeratorUser,
   seedPassword,
+  seedSuperAdminUser,
 } from './data/user.data';
-import { Gender, UserRole } from '../sdate/users/enums';
+import { Gender, UserRole } from '../users/enums';
 import { seedGeneralUserCount, seedModeratorCount } from './consts';
-import { UserEntity } from '../sdate/users/entities/user.entity';
+import { UserEntity } from '../users/entities/user.entity';
 
 @Injectable()
 export class SeedService {
@@ -28,6 +29,13 @@ export class SeedService {
       console.log('Skipped user seed');
       return;
     }
+
+    // seed super admin user
+    console.log('Adding super admin user...');
+    const superadmin = await this.userService.addUser(seedSuperAdminUser);
+    superadmin.role = UserRole.SuperAdmin;
+    superadmin.gender = Gender.Man;
+    await this.userService.updateUser(superadmin);
 
     // seed admin user
     console.log('Adding admin user...');

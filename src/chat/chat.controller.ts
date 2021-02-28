@@ -118,7 +118,9 @@ export class ChatController {
 
   /***********************Moderator*****************************/
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Send message from moderator',
+  })
   @ApiOkResponse({ type: ChatDto })
   @Post('send-moderator-message')
   async sendModeratorMessage(
@@ -135,13 +137,6 @@ export class ChatController {
   @ApiOperation({
     summary: 'Get before 10 chat list',
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles([
-    UserRole.SuperAdmin,
-    UserRole.Admin,
-    UserRole.Moderator,
-    UserRole.Customer,
-  ])
   @Put('getModeratorPartChatList')
   async getModeratorPartChatList(
     @Request() req,
@@ -159,13 +154,6 @@ export class ChatController {
   @ApiOperation({
     summary: 'Get before all chat list',
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles([
-    UserRole.SuperAdmin,
-    UserRole.Admin,
-    UserRole.Moderator,
-    UserRole.Customer,
-  ])
   @Put('getModeratorAllChatList')
   async getModeratorAllChatList(
     @Request() req,

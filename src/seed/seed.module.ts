@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { UsersModule } from '../sdate/users/users.module';
+import { UsersModule } from '../users/users.module';
 // import { BlogModule } from '../blog/blog.module';
 // import { CommentModule } from '../comment/comment.module';
 import { SeedService } from './seed.service';
@@ -10,5 +10,4 @@ import { SeedService } from './seed.service';
   imports: [UsersModule],
   providers: [SeedService],
 })
-export class SeedModule {
-}
+export class SeedModule {}

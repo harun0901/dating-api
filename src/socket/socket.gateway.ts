@@ -1,5 +1,11 @@
-import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import {
+  MessageBody,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
 import { Server } from 'socket.io';
+import { HttpService } from '@nestjs/common';
 
 import { SocketService } from './socket.service';
 import { ChatDto } from '../chat/dtos/chat.dto';
@@ -12,7 +18,7 @@ export class SocketGateway {
   server: Server;
   users: string[] = [];
 
-  constructor(private socketService: SocketService) {
+  constructor(private socketService: SocketService, private http: HttpService) {
     this.socketService.event$.asObservable().subscribe((event) => {
       this.sendEvent(event);
     });
@@ -33,10 +39,15 @@ export class SocketGateway {
     this.server.emit(`${event.receiver.id}_events`, event);
   }
 
-  sendMessage(userId: string, message: ChatDto) {
+  async sendMessage(userId: string, message: ChatDto) {
     const receiver = message.receiver;
     if (receiver.role === UserRole.Moderator) {
-      this.server.emit(`sdate_messages`, message);
+      const res = await this.http
+        .post<ChatDto>(
+          `${process.env.MODERATOR_URL}/smoderator/chat/send-message-event`,
+          message,
+        )
+        .toPromise();
     } else {
       this.server.emit(`${userId}_messages`, message);
     }
