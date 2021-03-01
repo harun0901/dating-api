@@ -24,6 +24,12 @@ export class UsersService {
     return this.userRepository.findOne({ id });
   }
 
+  async findByRole(roleStr: UserRole): Promise<UserEntity[]> {
+    return this.userRepository.find({
+      role: roleStr,
+    });
+  }
+
   async findLikeRelationById(id: string): Promise<UserEntity> {
     return this.userRepository.findOne({
       relations: ['likedList'],

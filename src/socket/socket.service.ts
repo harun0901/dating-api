@@ -6,8 +6,8 @@ import { NotificationDto } from '../notification/dtos/notification.dto';
 
 @Injectable()
 export class SocketService {
+  onlineUsers: string[] = [];
   event$: Subject<NotificationDto> = new Subject<NotificationDto>();
-
   message$: Subject<{ userId: string; message: ChatDto }> = new Subject<{
     userId: string;
     message: ChatDto;

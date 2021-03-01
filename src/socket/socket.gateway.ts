@@ -4,7 +4,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Client } from 'socket.io';
 import { HttpService } from '@nestjs/common';
 
 import { SocketService } from './socket.service';
@@ -15,7 +15,7 @@ import { UserRole } from '../users/enums';
 @WebSocketGateway()
 export class SocketGateway {
   @WebSocketServer()
-  server: Server;
+  private server: Server;
   users: string[] = [];
 
   constructor(private socketService: SocketService, private http: HttpService) {
@@ -33,6 +33,14 @@ export class SocketGateway {
   @SubscribeMessage('join')
   async join(@MessageBody() id: string) {
     this.users.push(id);
+    this.socketService.onlineUsers = this.users;
+  }
+
+  @SubscribeMessage('endjoin')
+  async endjoin(@MessageBody() id: string) {
+    const index = this.users.indexOf(id);
+    this.users.splice(index);
+    this.socketService.onlineUsers = this.users;
   }
 
   sendEvent(event: NotificationDto) {

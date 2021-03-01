@@ -1,20 +1,5 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Put,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { BadRequestException, Body, Controller, Get, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiImplicitParam } from '@nestjs/swagger/dist/decorators/api-implicit-param.decorator';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -25,19 +10,21 @@ import { ChangeRoleDto } from './dtos/change-role.dto';
 import { UserDto } from './dtos/user.dto';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
-import { LimitCountDto } from './dtos/limitCount.dto';
 import { UserFactDto } from './dtos/userFact.dto';
 import { UserBasicDto } from './dtos/userBasic.dto';
 import { UserInfoDto } from './dtos/userInfo.dto';
 import { UserIdDto } from './dtos/userId.dto';
 import { UserSearchDto } from './dtos/userSearch.dto';
-import { Between, Like } from 'typeorm';
 import { userRandomDto } from './dtos/userRandom.dto';
+import { SocketService } from '../socket/socket.service';
 
 @ApiTags('User')
 @Controller('sdate/user')
 export class UsersController {
-  constructor(private userService: UsersService) {}
+  constructor(
+    private socketService: SocketService,
+    private userService: UsersService,
+  ) {}
 
   @ApiBearerAuth()
   @ApiOperation({
@@ -124,6 +111,43 @@ export class UsersController {
   async getAllUsers(@Request() req): Promise<UserEntity[]> {
     return await this.userService.find();
   }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get online users' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('getOnlineUserIds')
+  async getOnlineUserIds(@Request() req): Promise<string[]> {
+    return this.socketService.onlineUsers;
+  }
+
+  /******************* Moderator Controller ************************/
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get online users for Moderator System' })
+  @Get('getOnlineUsers')
+  async getOnlineUsers(@Request() req): Promise<UserEntity[]> {
+    const idList = this.socketService.onlineUsers;
+    if (idList === null || idList.length === 0) {
+      return [];
+    } else {
+      return await this.userService.findUsersByIds(idList);
+    }
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get online users for Moderator System' })
+  @Get('getFakeUsers')
+  async getFakeUsers(@Request() req): Promise<UserEntity[]> {
+    return this.userService.findByRole(UserRole.Moderator);
+  }
+
+  /******************* Moderator Controller ************************/
 
   @Get('getById/:userId')
   @ApiBearerAuth()
