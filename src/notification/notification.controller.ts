@@ -51,7 +51,6 @@ export class NotificationController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Add a new notification' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('addModeratorNotification')
   async addModeratorNotification(
     @Request() req,
