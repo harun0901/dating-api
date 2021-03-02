@@ -38,9 +38,10 @@ export class SocketGateway {
 
   @SubscribeMessage('endjoin')
   async endjoin(@MessageBody() id: string) {
-    const index = this.users.indexOf(id);
-    this.users.splice(index);
-    this.socketService.onlineUsers = this.users;
+    const tmpUsers = [...new Set(this.users)];
+    const index = tmpUsers.indexOf(id);
+    tmpUsers.splice(index);
+    this.socketService.onlineUsers = tmpUsers;
   }
 
   sendEvent(event: NotificationDto) {

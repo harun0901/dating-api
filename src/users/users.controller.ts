@@ -147,6 +147,16 @@ export class UsersController {
     return this.userService.findByRole(UserRole.Moderator);
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get users info for Moderator System' })
+  @Post('getUserInfo')
+  async getUserInfo(
+    @Request() req,
+    @Body() dto: UserIdDto,
+  ): Promise<UserEntity> {
+    return this.userService.findById(dto.id);
+  }
+
   /******************* Moderator Controller ************************/
 
   @Get('getById/:userId')
