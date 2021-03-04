@@ -1,22 +1,15 @@
+import { Between, Repository } from 'typeorm';
+import { subHours } from 'date-fns';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { ChatEntity } from './entities/chat.entity';
-import { MessageStatusType } from './enums';
 import { SocketService } from '../socket/socket.service';
 import { UserEntity } from '../users/entities/user.entity';
 import { SendMessageDto } from './dtos/send-message.dto';
-import { SuccessResponse } from '../common/models/success-response';
-import { TotalUnreadDto } from './dtos/total-unread.dto';
-import { PendingMessage } from './interfaces';
-import {
-  groupByArray,
-  removeDuplicatesByField,
-} from '../common/utils/array.util';
 import { ChatDto } from './dtos/chat.dto';
 import { ChatDefault } from './enums';
-import { messageDefaultTakeCount } from '../common/constants/general.constants';
+import { UserRole } from '../users/enums';
 
 interface UnreadMessage {
   messageId: string;
@@ -109,6 +102,21 @@ export class ChatService {
       },
     });
     const res = list.map((item) => item.toDto());
+    return res;
+  }
+
+  async getTimeRangeCustomerChat(timeRangeNum: number): Promise<ChatDto[]> {
+    const BeforeDate = (date: Date) =>
+      Between(subHours(date, timeRangeNum), date);
+    const res = await this.chatRepository.find({
+      relations: ['sender', 'receiver'],
+      where: {
+        sender: {
+          role: UserRole.Customer,
+        },
+        createdAt: BeforeDate(new Date()),
+      },
+    });
     return res;
   }
   /*

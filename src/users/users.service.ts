@@ -8,6 +8,7 @@ import { RegisterUserDto } from '../auth/dtos/register-user.dto';
 import { getFromDto } from '../common/utils/repository.util';
 import { NotificationType } from '../notification/enums';
 import { UserSearchDto } from './dtos/userSearch.dto';
+import { subHours, subMinutes } from 'date-fns';
 
 @Injectable()
 export class UsersService {
@@ -22,6 +23,17 @@ export class UsersService {
 
   async findById(id: string): Promise<UserEntity> {
     return this.userRepository.findOne({ id });
+  }
+
+  async findNewUsers(): Promise<UserEntity[]> {
+    const BeforeDate = (date: Date) => Between(subMinutes(date, 15), date);
+    const res = await this.userRepository.find({
+      where: {
+        role: UserRole.Customer,
+        createdAt: BeforeDate(new Date()),
+      },
+    });
+    return res;
   }
 
   async findByRole(roleStr: UserRole): Promise<UserEntity[]> {

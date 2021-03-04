@@ -142,9 +142,32 @@ export class UsersController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get online users for Moderator System' })
+  @Get('getOfflineUsers')
+  async getOfflineUsers(@Request() req): Promise<UserEntity[]> {
+    const customerUsers = await this.userService.findByRole(UserRole.Customer);
+    const onlineUserIds = this.socketService.onlineUsers;
+    const res = customerUsers.filter((item) => {
+      if (onlineUserIds.includes(item.id)) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+    return res;
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get online users for Moderator System' })
   @Get('getFakeUsers')
   async getFakeUsers(@Request() req): Promise<UserEntity[]> {
     return this.userService.findByRole(UserRole.Moderator);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get customers for Moderator System' })
+  @Get('getCustomers')
+  async getCustomers(@Request() req): Promise<UserEntity[]> {
+    return this.userService.findByRole(UserRole.Customer);
   }
 
   @ApiBearerAuth()
@@ -155,6 +178,13 @@ export class UsersController {
     @Body() dto: UserIdDto,
   ): Promise<UserEntity> {
     return this.userService.findById(dto.id);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get new users for Moderator System' })
+  @Get('getNewCustomers')
+  async getNewCustomers(@Request() req): Promise<UserEntity[]> {
+    return this.userService.findNewUsers();
   }
 
   /******************* Moderator Controller ************************/

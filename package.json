@@ -38,6 +38,7 @@
     "class-transformer": "^0.3.2",
     "class-validator": "^0.13.1",
     "dataloader": "^2.0.0",
+    "date-fns": "^2.18.0",
     "faker": "^5.3.1",
     "graphql-relay": "^0.6.0",
     "graphql-subscriptions": "^1.2.0",

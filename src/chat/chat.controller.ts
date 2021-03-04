@@ -1,47 +1,20 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
-import { ApiImplicitParam } from '@nestjs/swagger/dist/decorators/api-implicit-param.decorator';
-import * as multiparty from 'multiparty';
-import { fromString } from 'html-to-text';
+import { BadRequestException, Body, Controller, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ChatService } from './chat.service';
 import { SendMessageDto } from './dtos/send-message.dto';
-import { ChatEntity } from './entities/chat.entity';
 import { UserEntity } from '../users/entities/user.entity';
-import {
-  defaultTakeCount,
-  messageDefaultTakeCount,
-} from '../common/constants/general.constants';
-import { SuccessResponse } from '../common/models/success-response';
-import { TotalUnreadDto } from './dtos/total-unread.dto';
-import { extractEmailFromString } from '../common/utils/string.util';
 import { UserRole } from '../users/enums/index';
 import { UsersService } from '../users/users.service';
 import { ChatDto } from './dtos/chat.dto';
-import { distinct } from 'rxjs/operators';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserIdDto } from '../users/dtos/userId.dto';
-import { UserDto } from '../users/dtos/user.dto';
 import { SendModeratorMessageDto } from './dtos/send-moderator-message.dto';
 import { GetModeratorMessageDto } from './dtos/get-moderator-message.dto';
+import { TimeMessageDto } from './dtos/time-message.dto';
+import { UserDto } from '../users/dtos/user.dto';
 
 @ApiTags('Chat')
 @Controller('sdate/chat')
@@ -164,6 +137,22 @@ export class ChatController {
     );
     const owner = await this.userService.findById(customerInfo.senderId);
     const res = await this.chatService.getAllChatList(customerUser, owner);
+    return res;
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get chat customers in timedto times',
+  })
+  @Post('getChatCustomers')
+  async getChatCustomers(
+    @Request() req,
+    @Body() timedto: TimeMessageDto,
+  ): Promise<UserDto[]> {
+    const customerChats = await this.chatService.getTimeRangeCustomerChat(
+      timedto.timeRangeNum,
+    );
+    const res = customerChats.map((item) => item.sender.toDto());
     return res;
   }
   /***********************Moderator*****************************/
