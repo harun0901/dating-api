@@ -43,7 +43,7 @@ export class NotificationController {
     const receiver = await this.userService.findById(body.receiver_id);
 
     return await this.notificationService.addNotification(
-      body,
+      body.pattern,
       owner,
       receiver,
     );
@@ -60,7 +60,7 @@ export class NotificationController {
     const receiver = await this.userService.findById(body.receiver_id);
 
     return await this.notificationService.addNotification(
-      body,
+      body.pattern,
       owner,
       receiver,
     );

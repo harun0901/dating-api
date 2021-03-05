@@ -18,14 +18,14 @@ export class NotificationService {
   ) {}
 
   async addNotification(
-    payload: AddNotificationDto,
+    pattern: string,
     sender: UserEntity,
     receiver: UserEntity,
   ): Promise<NotificationDto> {
     const notification = new NotificationEntity();
     notification.sender = sender;
     notification.receiver = receiver;
-    notification.pattern = payload.pattern;
+    notification.pattern = pattern;
     notification.seen = NotificationState.NotSeen;
 
     const [
@@ -39,7 +39,7 @@ export class NotificationService {
         receiver: {
           id: receiver.id,
         },
-        pattern: payload.pattern,
+        pattern: pattern,
         seen: NotificationState.NotSeen,
       },
     });
