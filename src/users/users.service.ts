@@ -9,6 +9,7 @@ import { getFromDto } from '../common/utils/repository.util';
 import { NotificationType } from '../notification/enums';
 import { UserSearchDto } from './dtos/userSearch.dto';
 import { subHours, subMinutes } from 'date-fns';
+import { UserAnalyseInfoDto } from './dtos/userAnalyseInfo.dto';
 
 @Injectable()
 export class UsersService {
@@ -23,6 +24,15 @@ export class UsersService {
 
   async findById(id: string): Promise<UserEntity> {
     return this.userRepository.findOne({ id });
+  }
+
+  async getAnalyseInfo(id: string): Promise<UserEntity> {
+    return this.userRepository.findOne({
+      relations: ['sentChats'],
+      where: {
+        id,
+      },
+    });
   }
 
   async findNewUsers(): Promise<UserEntity[]> {

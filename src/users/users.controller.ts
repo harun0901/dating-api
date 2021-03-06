@@ -17,6 +17,7 @@ import { UserIdDto } from './dtos/userId.dto';
 import { UserSearchDto } from './dtos/userSearch.dto';
 import { userRandomDto } from './dtos/userRandom.dto';
 import { SocketService } from '../socket/socket.service';
+import { UserAnalyseInfoDto } from './dtos/userAnalyseInfo.dto';
 
 @ApiTags('User')
 @Controller('sdate/user')
@@ -185,6 +186,19 @@ export class UsersController {
   @Get('getNewCustomers')
   async getNewCustomers(@Request() req): Promise<UserEntity[]> {
     return this.userService.findNewUsers();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get msg count & balance for Moderator System' })
+  @Post('getAnalyseInfo')
+  async getAnalyseInfo(
+    @Request() req,
+    @Body() payload: UserIdDto,
+  ): Promise<UserAnalyseInfoDto> {
+    const customerInfo = await this.userService.getAnalyseInfo(payload.id);
+    const msg_count = customerInfo.sentChats.length;
+    const balance = customerInfo.balance;
+    return { msgCount: msg_count, balance: balance };
   }
 
   /******************* Moderator Controller ************************/
