@@ -103,4 +103,19 @@ export class NotificationController {
     const owner = await this.userService.findById(req.user.id);
     return await this.notificationService.findByUser(owner);
   }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all not seen notification' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('getNotSeenNotification')
+  async getNotSeenNotification(@Request() req): Promise<NotificationDto[]> {
+    const owner = await this.userService.findById(req.user.id);
+    return await this.notificationService.findNotSeenByUser(owner);
+  }
 }

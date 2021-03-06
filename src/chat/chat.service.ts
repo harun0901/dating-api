@@ -8,8 +8,10 @@ import { SocketService } from '../socket/socket.service';
 import { UserEntity } from '../users/entities/user.entity';
 import { SendMessageDto } from './dtos/send-message.dto';
 import { ChatDto } from './dtos/chat.dto';
-import { ChatDefault } from './enums';
+import { ChatDefault, ChatValues } from './enums';
 import { UserRole } from '../users/enums';
+import { SeenMessageDto } from './dtos/seen-message.dto';
+import { UsersService } from '../users/users.service';
 
 interface UnreadMessage {
   messageId: string;
@@ -26,6 +28,7 @@ export class ChatService {
   constructor(
     @InjectRepository(ChatEntity)
     private chatRepository: Repository<ChatEntity>,
+    private usersService: UsersService,
     private readonly socketService: SocketService,
   ) {}
 
@@ -44,11 +47,54 @@ export class ChatService {
     chat.kiss = payload.kiss;
     chat.seen = ChatDefault.SEEN;
     const res = await this.chatRepository.save(chat);
+    //------make seen all messages-----------------------
+    await this.chatRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        seen: ChatValues.SEEN,
+      })
+      .where('sender.id = :senderId and receiver.id = :receiverId', {
+        senderId: receiver.id,
+        receiverId: sender.id,
+      })
+      .execute();
+    //---------------------------------------------------
     this.socketService.message$.next({
       userId: receiver.id,
       message: res.toDto(),
     });
     return res.toDto();
+  }
+
+  async seenMessage(payload: SeenMessageDto): Promise<ChatDto> {
+    await this.chatRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        seen: ChatValues.SEEN,
+      })
+      .where('sender.id = :senderId and receiver.id = :receiverId', {
+        senderId: payload.receiverId,
+        receiverId: payload.senderId,
+      })
+      .execute();
+    const chat = new ChatEntity();
+    chat.sender = await this.usersService.findById(payload.senderId);
+    chat.sender_delete = ChatDefault.SENDER_DELETE;
+    chat.receiver = await this.usersService.findById(payload.receiverId);
+    chat.receiver_delete = ChatDefault.RECEIVER_DELETE;
+    chat.text = '';
+    chat.gift = '';
+    chat.kiss = '';
+    chat.seen = ChatDefault.SEEN;
+    chat.createdAt = new Date().toString();
+    chat.updatedAt = new Date().toString();
+    this.socketService.message$.next({
+      userId: payload.receiverId,
+      message: chat.toDto(),
+    });
+    return chat;
   }
 
   async getPartChatList(

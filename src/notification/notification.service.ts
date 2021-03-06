@@ -59,6 +59,18 @@ export class NotificationService {
         receiver: {
           id: receiver.id,
         },
+      },
+    });
+    return res.map((one) => one.toDto());
+  }
+
+  async findNotSeenByUser(receiver: UserEntity): Promise<NotificationDto[]> {
+    const res = await this.notificationEntityRepository.find({
+      relations: ['sender', 'receiver'],
+      where: {
+        receiver: {
+          id: receiver.id,
+        },
         seen: NotificationState.NotSeen,
       },
     });

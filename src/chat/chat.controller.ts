@@ -1,5 +1,18 @@
-import { BadRequestException, Body, Controller, Post, Put, Request, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Post,
+  Put,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ChatService } from './chat.service';
@@ -15,6 +28,7 @@ import { SendModeratorMessageDto } from './dtos/send-moderator-message.dto';
 import { GetModeratorMessageDto } from './dtos/get-moderator-message.dto';
 import { TimeMessageDto } from './dtos/time-message.dto';
 import { UserDto } from '../users/dtos/user.dto';
+import { SeenMessageDto } from './dtos/seen-message.dto';
 
 @ApiTags('Chat')
 @Controller('sdate/chat')
@@ -89,7 +103,35 @@ export class ChatController {
     return res;
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Set the message seen',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @ApiOkResponse({ type: ChatDto })
+  @Put('seen-message')
+  async seenMessage(@Body() body: SeenMessageDto): Promise<ChatDto> {
+    return this.chatService.seenMessage(body);
+  }
+
   /***********************Moderator*****************************/
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Set the message seen for moderator system',
+  })
+  @ApiOkResponse({ type: ChatDto })
+  @Put('seen-moderator-message')
+  async seenModeratorMessage(@Body() body: SeenMessageDto): Promise<ChatDto> {
+    return this.chatService.seenMessage(body);
+  }
+
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Send message from moderator',
