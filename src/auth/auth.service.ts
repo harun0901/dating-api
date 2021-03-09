@@ -43,8 +43,11 @@ export class AuthService {
     return this.login(user);
   }
 
-  async profileFromUserId(id: string): Promise<UserDto> {
+  async profileFromUserId(id: string, ip: string): Promise<UserDto> {
     const user = await this.usersService.findById(id);
+    user.lastLogin = new Date();
+    user.ipAddress = ip;
+    await this.usersService.updateUser(user);
     return user.toDto();
   }
 }

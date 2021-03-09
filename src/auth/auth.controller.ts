@@ -46,7 +46,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('')
   getAuthInfo(@Request() req): Promise<UserDto> {
-    return this.authService.profileFromUserId(req.user.id);
+    return this.authService.profileFromUserId(
+      req.user.id,
+      req.connection.remoteAddress,
+    );
   }
 
   @ApiOkResponse({ type: TokenResponse })

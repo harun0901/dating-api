@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Post,
   Put,
   Request,
@@ -101,6 +102,48 @@ export class ChatController {
     const owner = await this.userService.findById(req.user.id);
     const res = await this.chatService.getAllChatList(customerUser, owner);
     return res;
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Message Count on this month' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('messageCount')
+  async messageCount(@Request() req): Promise<number> {
+    return await this.chatService.messageCount();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Message Count on this month' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('giftCount')
+  async giftCount(@Request() req): Promise<number> {
+    return await this.chatService.giftCount();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Message Count on this month' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('kissCount')
+  async kissCount(@Request() req): Promise<number> {
+    return await this.chatService.kissCount();
   }
 
   @ApiBearerAuth()

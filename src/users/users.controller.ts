@@ -1,5 +1,20 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ApiImplicitParam } from '@nestjs/swagger/dist/decorators/api-implicit-param.decorator';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -18,6 +33,9 @@ import { UserSearchDto } from './dtos/userSearch.dto';
 import { userRandomDto } from './dtos/userRandom.dto';
 import { SocketService } from '../socket/socket.service';
 import { UserAnalyseInfoDto } from './dtos/userAnalyseInfo.dto';
+import { UpdatePasswordDto } from './dtos/update-password.dto';
+import { hash } from 'bcrypt';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @ApiTags('User')
 @Controller('sdate/user')
@@ -114,6 +132,20 @@ export class UsersController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get user create state' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('userCreateAnalyze')
+  async userCreateAnalyze(@Request() req): Promise<any> {
+    return await this.userService.userCreateAnalyze();
+  }
+
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get online users' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles([
@@ -125,6 +157,51 @@ export class UsersController {
   @Get('getOnlineUserIds')
   async getOnlineUserIds(@Request() req): Promise<string[]> {
     return this.socketService.onlineUsers;
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get online user count' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('getOnlineUserCount')
+  async getOnlineUserCount(@Request() req): Promise<number> {
+    const idList = this.socketService.onlineUsers;
+    return idList.length;
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get faker user count' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('getFakeUserCount')
+  async getFakeUserCount(@Request() req): Promise<number> {
+    const userList = await this.userService.findByRole(UserRole.Moderator);
+    return userList.length;
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get customer count' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('getCustomerCount')
+  async getCustomerCount(@Request() req): Promise<number> {
+    const userList = await this.userService.findByRole(UserRole.Customer);
+    return userList.length;
   }
 
   /******************* Moderator Controller ************************/
@@ -383,6 +460,52 @@ export class UsersController {
     UserRole.Moderator,
     UserRole.Customer,
   ])
+  @Put('updateAll')
+  async updateAll(
+    @Request() req,
+    @Body() dto: UpdateUserDto,
+  ): Promise<UserDto> {
+    let user = await this.userService.findById(dto.id);
+    if (req.user.role === UserRole.Admin || dto.id === req.user.id) {
+      user.fullName = dto.fullName;
+      user.email = dto.email;
+      user.role = dto.role;
+      user.gender = dto.gender;
+      user.birthday = dto.birthday;
+      user.balance = dto.balance;
+      user.body = dto.body;
+      user.profession = dto.profession;
+      user.language = dto.language;
+      user.education = dto.education;
+      user.relationshipStatus = dto.relationshipStatus;
+      user.height = dto.height;
+      user.lookingFor = dto.lookingFor;
+      user.interestedIn = dto.interestedIn;
+      user.smoker = dto.smoker;
+      user.alcohol = dto.alcohol;
+      user.kids = dto.kids;
+      user.location = dto.location;
+    } else {
+      throw new BadRequestException(
+        "Your role couldn't change the user basic info.",
+      );
+    }
+    user = await this.userService.updateUser(user);
+    return user.toDto();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Update the user basic info. Only admin users can hava access to change the other user basic info',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
   @Put('updateBasic/:userId')
   async updateBasic(
     @Request() req,
@@ -401,6 +524,29 @@ export class UsersController {
     }
     user = await this.userService.updateUser(user);
     return user.toDto();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Delete a customer',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Post('deleteUser')
+  async deleteUser(@Request() req, @Body() dto: UserIdDto): Promise<boolean> {
+    if (req.user.role === UserRole.Admin || dto.id === req.user.id) {
+      await this.userService.removeById(dto.id);
+    } else {
+      throw new BadRequestException(
+        "Your role couldn't change the user basic info.",
+      );
+    }
+    return true;
   }
 
   @ApiBearerAuth()
@@ -476,6 +622,77 @@ export class UsersController {
     const likeUser = await this.userService.findById(likeInfo.id);
     let owner = await this.userService.findLikeRelationById(req.user.id);
     const index = owner.likedList.findIndex((user) => user.id === likeUser.id);
+    owner.likedList.splice(index, 1);
+    owner = await this.userService.updateUser(owner);
+    return owner.toDto();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Add a block user',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('blockUser')
+  async blockUser(
+    @Request() req,
+    @Body() payload: UserIdDto,
+  ): Promise<UserDto> {
+    const blockUser = await this.userService.findById(payload.id);
+    let owner = await this.userService.findBlockRelationById(req.user.id);
+    owner.likedList.push(blockUser);
+    owner = await this.userService.updateUser(owner);
+    return owner.toDto();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update user password',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('updatePassword')
+  async updatePassword(
+    @Request() req,
+    @Body() payload: UpdatePasswordDto,
+  ): Promise<UserDto> {
+    const customer = await this.userService.findById(payload.id);
+    hash(payload.password, 10).then(async (encrypted) => {
+      customer.password = encrypted;
+      await this.userService.updateUser(customer);
+    });
+    return customer.toDto();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Remove a block user',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('removeBlockedUser')
+  async removeBlockedUser(
+    @Request() req,
+    @Body() payload: UserIdDto,
+  ): Promise<UserDto> {
+    const blockedUser = await this.userService.findById(payload.id);
+    let owner = await this.userService.findBlockRelationById(req.user.id);
+    const index = owner.likedList.findIndex((user) => user.id === payload.id);
     owner.likedList.splice(index, 1);
     owner = await this.userService.updateUser(owner);
     return owner.toDto();

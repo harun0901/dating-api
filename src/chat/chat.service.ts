@@ -1,5 +1,5 @@
-import { Between, Repository } from 'typeorm';
-import { subHours } from 'date-fns';
+import { Between, Not, Repository } from 'typeorm';
+import { subHours, subMinutes, subMonths } from 'date-fns';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -149,6 +149,38 @@ export class ChatService {
     });
     const res = list.map((item) => item.toDto());
     return res;
+  }
+
+  async messageCount(): Promise<number> {
+    const BeforeDate = (date: Date) => Between(subMonths(date, 1), date);
+    const list = await this.chatRepository.find({
+      where: {
+        createdAt: BeforeDate(new Date()),
+      },
+    });
+    return list.length;
+  }
+
+  async giftCount(): Promise<number> {
+    const BeforeDate = (date: Date) => Between(subMonths(date, 1), date);
+    const list = await this.chatRepository.find({
+      where: {
+        gift: Not(''),
+        createdAt: BeforeDate(new Date()),
+      },
+    });
+    return list.length;
+  }
+
+  async kissCount(): Promise<number> {
+    const BeforeDate = (date: Date) => Between(subMonths(date, 1), date);
+    const list = await this.chatRepository.find({
+      where: {
+        kiss: Not(''),
+        createdAt: BeforeDate(new Date()),
+      },
+    });
+    return list.length;
   }
 
   async getTimeRangeCustomerChat(timeRangeNum: number): Promise<ChatDto[]> {

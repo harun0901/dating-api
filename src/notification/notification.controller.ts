@@ -118,4 +118,46 @@ export class NotificationController {
     const owner = await this.userService.findById(req.user.id);
     return await this.notificationService.findNotSeenByUser(owner);
   }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Like Notification Count on this month' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('likeCount')
+  async likeCount(@Request() req): Promise<number> {
+    return await this.notificationService.likeCount();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Favorite Notification Count on this month' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('favoriteCount')
+  async favoriteCount(@Request() req): Promise<number> {
+    return await this.notificationService.favoriteCount();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Visit Notification Count on this month' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('visitCount')
+  async visitCount(@Request() req): Promise<number> {
+    return await this.notificationService.visitCount();
+  }
 }

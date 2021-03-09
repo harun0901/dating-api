@@ -6,8 +6,9 @@ import { NotificationEntity } from './entities/notification.entity';
 import { UserEntity } from '../users/entities/user.entity';
 import { AddNotificationDto } from './dtos/addNotification.dto';
 import { NotificationDto } from './dtos/notification.dto';
-import { NotificationState } from './enums';
-import { Repository } from 'typeorm';
+import { NotificationState, NotificationType } from './enums';
+import { Between, Not, Repository } from 'typeorm';
+import { subMonths } from 'date-fns';
 
 @Injectable()
 export class NotificationService {
@@ -75,6 +76,39 @@ export class NotificationService {
       },
     });
     return res.map((one) => one.toDto());
+  }
+
+  async likeCount(): Promise<number> {
+    const BeforeDate = (date: Date) => Between(subMonths(date, 1), date);
+    const list = await this.notificationEntityRepository.find({
+      where: {
+        pattern: NotificationType.Like,
+        createdAt: BeforeDate(new Date()),
+      },
+    });
+    return list.length;
+  }
+
+  async favoriteCount(): Promise<number> {
+    const BeforeDate = (date: Date) => Between(subMonths(date, 1), date);
+    const list = await this.notificationEntityRepository.find({
+      where: {
+        pattern: NotificationType.Favorite,
+        createdAt: BeforeDate(new Date()),
+      },
+    });
+    return list.length;
+  }
+
+  async visitCount(): Promise<number> {
+    const BeforeDate = (date: Date) => Between(subMonths(date, 1), date);
+    const list = await this.notificationEntityRepository.find({
+      where: {
+        pattern: NotificationType.Visit,
+        createdAt: BeforeDate(new Date()),
+      },
+    });
+    return list.length;
   }
 
   async findById(id: string): Promise<NotificationEntity> {

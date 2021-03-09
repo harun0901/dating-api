@@ -20,6 +20,10 @@ import { UploadEntity } from '../../upload/entities/upload.entity';
 
 @Entity('user')
 export class UserEntity extends SoftDelete {
+  @ManyToMany(() => UserEntity, (UserEntity) => UserEntity.blockedList)
+  @JoinTable()
+  blockedList: UserEntity[];
+
   @ManyToMany(() => UserEntity, (UserEntity) => UserEntity.likedList)
   @JoinTable()
   likedList: UserEntity[];
@@ -98,6 +102,12 @@ export class UserEntity extends SoftDelete {
   @Column({ default: 1 })
   state: number;
 
+  @Column({ default: '' })
+  ipAddress: string;
+
+  @Column({ default: new Date() })
+  lastLogin: Date;
+
   @OneToMany(() => TransactionEntity, (transaction) => transaction.payer)
   transactionList?: TransactionEntity[];
 
@@ -148,6 +158,8 @@ export class UserEntity extends SoftDelete {
       paypal: this.paypal,
       balance: this.balance,
       state: this.state,
+      ipAddress: this.ipAddress,
+      lastLogin: this.lastLogin,
     };
   }
 }

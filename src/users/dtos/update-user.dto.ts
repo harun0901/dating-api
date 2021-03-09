@@ -3,7 +3,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from '../enums';
 import { CommonDto } from '../../common/dtos/common.dto';
 
-export class UserDto extends CommonDto {
+export class UpdateUserDto {
+  @ApiProperty({ description: `the user's id` })
+  id: string;
+
   @ApiProperty({ description: `the user's full name` })
   fullName: string;
 
@@ -58,21 +61,21 @@ export class UserDto extends CommonDto {
   @ApiProperty({ description: `the user's location` })
   location: string;
 
-  @ApiProperty({ description: `the user's description` })
-  about: string;
-
-  @ApiProperty({ description: `the user's paypal address` })
-  paypal: string;
-
   @ApiProperty({ description: `the user's balance` })
   balance: number;
-
-  @ApiProperty({ description: `the user's state` })
-  state: number;
-
-  @ApiProperty({ description: `the user's ipAddress` })
-  ipAddress: string;
-
-  @ApiProperty({ description: `the user's lastlogin date` })
-  lastLogin: Date;
+  //
+  // @ApiProperty({ description: `the user's description` })
+  // about: string;
+  //
+  // @ApiProperty({ description: `the user's paypal address` })
+  // paypal: string;
+  //
+  // @ApiProperty({ description: `the user's state` })
+  // state: number;
+  //
+  // @ApiProperty({ description: `the user's ipAddress` })
+  // ipAddress: string;
+  //
+  // @ApiProperty({ description: `the user's lastlogin date` })
+  // lastLogin: Date;
 }

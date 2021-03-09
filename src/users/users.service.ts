@@ -26,6 +26,12 @@ export class UsersService {
     return this.userRepository.findOne({ id });
   }
 
+  async removeById(id: string): Promise<boolean> {
+    const customer = await this.findById(id);
+    await this.userRepository.remove(customer);
+    return true;
+  }
+
   async getAnalyseInfo(id: string): Promise<UserEntity> {
     return this.userRepository.findOne({
       relations: ['sentChats'],
@@ -55,6 +61,15 @@ export class UsersService {
   async findLikeRelationById(id: string): Promise<UserEntity> {
     return this.userRepository.findOne({
       relations: ['likedList'],
+      where: {
+        id,
+      },
+    });
+  }
+
+  async findBlockRelationById(id: string): Promise<UserEntity> {
+    return this.userRepository.findOne({
+      relations: ['blockedList'],
       where: {
         id,
       },
@@ -115,6 +130,17 @@ export class UsersService {
 
   async find(): Promise<UserEntity[]> {
     return this.userRepository.find();
+  }
+
+  async userCreateAnalyze(): Promise<any[]> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .select('extract(year from user.createdAt)', 'year')
+      .addSelect('Month(`createdAt`)', 'month')
+      .addSelect('Count(*)', 'user_count')
+      .groupBy('Year(`createdAt`)')
+      .addGroupBy('Month(`createdAt`)')
+      .getMany();
   }
 
   async findRandomUser(
