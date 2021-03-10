@@ -645,9 +645,78 @@ export class UsersController {
   ): Promise<UserDto> {
     const blockUser = await this.userService.findById(payload.id);
     let owner = await this.userService.findBlockRelationById(req.user.id);
-    owner.likedList.push(blockUser);
+    owner.blockedList.push(blockUser);
     owner = await this.userService.updateUser(owner);
     return owner.toDto();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Remove a block user',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('removeBlockedUser')
+  async removeBlockedUser(
+    @Request() req,
+    @Body() payload: UserIdDto,
+  ): Promise<UserDto> {
+    const blockedUser = await this.userService.findById(payload.id);
+    let owner = await this.userService.findBlockRelationById(req.user.id);
+    const index = owner.blockedList.findIndex((user) => user.id === payload.id);
+    owner.blockedList.splice(index, 1);
+    owner = await this.userService.updateUser(owner);
+    return owner.toDto();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Blocked Users' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Post('getBlockedUser')
+  async getBlockedUser(
+    @Request() req,
+    @Body() dto: UserSearchDto,
+  ): Promise<UserEntity[]> {
+    const owner = await this.userService.findBlockRelationById(req.user.id);
+    let idList = [];
+    if (dto.ignoreFlag) {
+      idList = owner.blockedList.map((user) => user.id);
+    } else {
+      const curDate = new Date();
+      const endYear = curDate.getFullYear() - dto.startAge;
+      const startYear = curDate.getFullYear() - dto.endAge;
+      const startDate = new Date(startYear, 0, 1);
+      const endDate = new Date(endYear, 11, 31);
+      idList = owner.blockedList
+        .filter((item) => {
+          if (
+            item.gender == dto.lookingFor &&
+            item.location.includes(dto.location) &&
+            item.birthday >= startDate &&
+            item.birthday <= endDate
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        })
+        .map((user) => user.id);
+    }
+    if (idList.length === 0) {
+      return [];
+    }
+    return await this.userService.findUsersByIds(idList);
   }
 
   @ApiBearerAuth()
@@ -672,30 +741,6 @@ export class UsersController {
       await this.userService.updateUser(customer);
     });
     return customer.toDto();
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Remove a block user',
-  })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles([
-    UserRole.SuperAdmin,
-    UserRole.Admin,
-    UserRole.Moderator,
-    UserRole.Customer,
-  ])
-  @Put('removeBlockedUser')
-  async removeBlockedUser(
-    @Request() req,
-    @Body() payload: UserIdDto,
-  ): Promise<UserDto> {
-    const blockedUser = await this.userService.findById(payload.id);
-    let owner = await this.userService.findBlockRelationById(req.user.id);
-    const index = owner.likedList.findIndex((user) => user.id === payload.id);
-    owner.likedList.splice(index, 1);
-    owner = await this.userService.updateUser(owner);
-    return owner.toDto();
   }
 
   @ApiBearerAuth()

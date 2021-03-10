@@ -23,7 +23,12 @@ export class UsersService {
   }
 
   async findById(id: string): Promise<UserEntity> {
-    return this.userRepository.findOne({ id });
+    return this.userRepository.findOne({
+      relations: ['blockedList'],
+      where: {
+        id,
+      },
+    });
   }
 
   async removeById(id: string): Promise<boolean> {

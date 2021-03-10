@@ -17,8 +17,6 @@ import { UsersService } from '../users/users.service';
 import { NotificationDto } from './dtos/notification.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../users/enums';
-import { UserIdDto } from '../users/dtos/userId.dto';
-import { UserDto } from '../users/dtos/user.dto';
 import { NotificationState, NotificationType } from './enums';
 import { NotificationIdDto } from './dtos/notificationId.dto';
 import { AddModeratorNotificationDto } from './dtos/addModeratorNotification.dto';

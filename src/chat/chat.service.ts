@@ -54,10 +54,14 @@ export class ChatService {
       .set({
         seen: ChatValues.SEEN,
       })
-      .where('sender.id = :senderId and receiver.id = :receiverId', {
-        senderId: receiver.id,
-        receiverId: sender.id,
-      })
+      .where(
+        'sender.id = :senderId and receiver.id = :receiverId and seen = :seenState',
+        {
+          senderId: receiver.id,
+          receiverId: sender.id,
+          seenState: ChatDefault.SEEN,
+        },
+      )
       .execute();
     //---------------------------------------------------
     this.socketService.message$.next({
