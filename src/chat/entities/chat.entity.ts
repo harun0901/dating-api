@@ -34,8 +34,8 @@ export class ChatEntity extends SoftDelete {
   seen: number;
 
   // @Column({
-  //   type: 'enum',
-  //   enum: ChatType,
+  //   type: 'enums',
+  //   enums: ChatType,
   //   default: ChatType.ProjectConsultation,
   // })
   // type: ChatType;

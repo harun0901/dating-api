@@ -293,6 +293,22 @@ export class UsersController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Generate Fakers' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post('generateFaker')
+  async generateFaker(
+    @Request() req,
+    @Body() body: UserIdDto,
+  ): Promise<UserEntity> {
+    const fakerCount = parseInt(body.id);
+    let res;
+    for (let index = 0; index < fakerCount; index++) {
+      res = await this.userService.addUserWithRole(UserRole.Moderator);
+    }
+    return res;
+  }
+
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get Random Users by limit_count' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('getRandomUserByLimit')

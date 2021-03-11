@@ -12,6 +12,7 @@ import { UploadModule } from './upload/upload.module';
 import { NotificationModule } from './notification/notification.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { GiftModule } from './gift/gift.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { GiftModule } from './gift/gift.module';
     NotificationModule,
     TransactionModule,
     GiftModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
