@@ -1,11 +1,4 @@
-import {
-  BeforeInsert,
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  OneToMany,
-} from 'typeorm';
+import { BeforeInsert, Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { hash } from 'bcrypt';
 
@@ -13,10 +6,10 @@ import { SoftDelete } from '../../common/core/soft-delete';
 import { UserRole } from '../enums';
 import { UserDto } from '../dtos/user.dto';
 import { ChatEntity } from '../../chat/entities/chat.entity';
-import { ApiProperty } from '@nestjs/swagger';
 import { NotificationEntity } from '../../notification/entities/notification.entity';
 import { TransactionEntity } from '../../transaction/entities/transaction.entity';
 import { UploadEntity } from '../../upload/entities/upload.entity';
+import { CategoryEntity } from '../../category/entities/category.entity';
 
 @Entity('user')
 export class UserEntity extends SoftDelete {
@@ -122,6 +115,10 @@ export class UserEntity extends SoftDelete {
 
   @OneToMany(() => NotificationEntity, (notification) => notification.receiver)
   receiveNotifications?: NotificationEntity[];
+
+  @ManyToMany(() => CategoryEntity, (category) => category.userList)
+  @JoinTable()
+  categoryList: CategoryEntity[];
 
   @OneToMany(() => UploadEntity, (upload) => upload.uploader)
   upload?: UploadEntity[];

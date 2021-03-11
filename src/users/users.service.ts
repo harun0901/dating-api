@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Like, Repository } from 'typeorm';
+import * as Faker from 'faker';
 
 import { UserRole } from './enums';
 import { UserEntity } from './entities/user.entity';
@@ -10,6 +11,7 @@ import { NotificationType } from '../notification/enums';
 import { UserSearchDto } from './dtos/userSearch.dto';
 import { subHours, subMinutes } from 'date-fns';
 import { UserAnalyseInfoDto } from './dtos/userAnalyseInfo.dto';
+import { mailDomain, seedPassword } from '../seed/data/user.data';
 
 @Injectable()
 export class UsersService {
@@ -192,5 +194,105 @@ export class UsersService {
       .createQueryBuilder()
       .where('id IN (:...ids)', { ids: idList })
       .getMany();
+  }
+
+  async addUserWithRole(role: UserRole): Promise<UserEntity> {
+    const firstName = Faker.name.firstName();
+    const lastName = Faker.name.lastName();
+    const user = await this.addUser({
+      fullName: `${firstName} ${lastName}`,
+      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${mailDomain}`,
+      password: seedPassword,
+      gender: Faker.random.arrayElement(['Woman', 'Man']),
+    });
+    user.role = role;
+    user.birthday = Faker.date.between('1966-01-01', '2001-12-31');
+    // user.avatar = Faker.image.imageUrl(150, 150, 'people');
+    user.avatar = `${Faker.image.imageUrl(
+      150,
+      150,
+      'people',
+    )}?random=${Date.now()}`;
+    user.location = Faker.address.country();
+    user.gender = Faker.random.arrayElement(['Woman', 'Man']);
+    user.lookingFor = Faker.random.arrayElement(['Woman', 'Man']);
+    user.kids = Faker.random.arrayElement([
+      'No Kids',
+      'One Kid',
+      'Two Kids',
+      'Three Kids',
+      'More then Three Kids',
+    ]);
+    user.body = Faker.random.arrayElement([
+      'Slim',
+      'Normal',
+      'Athletic',
+      'Muscular',
+      'Chubby',
+    ]);
+    user.profession = Faker.random.arrayElement([
+      'Seeking work',
+      'Trainee',
+      'Employee',
+      'Public Official',
+      'Housewife',
+      'Retired ',
+      'Self-employed',
+      'Student',
+    ]);
+    user.language = Faker.random.arrayElement([
+      'english',
+      'arabic',
+      'dutch',
+      'french',
+      'german',
+      'italian',
+      'portuguese',
+      'russian',
+      'spanish',
+      'turkish',
+      'hebrew',
+    ]);
+    user.education = Faker.random.arrayElement([
+      'Not finished',
+      'Secondary school',
+      'High school',
+      'High school diploma',
+      'College/University',
+      'Postgraduate degree',
+    ]);
+    user.relationshipStatus = Faker.random.arrayElement([
+      'Single',
+      'Relationship',
+      'Openrelationship',
+    ]);
+    user.height = Faker.random.arrayElement([
+      '149',
+      '154',
+      '159',
+      '164',
+      '169',
+      '174',
+      '180',
+      '185',
+      '190',
+      '195',
+      '200',
+      '205',
+      '210',
+    ]);
+    user.interestedIn = Faker.random.arrayElement([
+      'Single',
+      'Relationship',
+      'Openrelationship',
+    ]);
+    user.smoker = Faker.random.arrayElement([
+      'Non-Smoker',
+      'Ex-Smoker',
+      'Occasional Smoker',
+      'Regular Smoker',
+    ]);
+    user.alcohol = Faker.random.arrayElement(['Never', 'Sometimes', 'Gladly']);
+    return this.updateUser(user);
   }
 }
