@@ -9,9 +9,10 @@ import { RegisterUserDto } from '../auth/dtos/register-user.dto';
 import { getFromDto } from '../common/utils/repository.util';
 import { NotificationType } from '../notification/enums';
 import { UserSearchDto } from './dtos/userSearch.dto';
-import { subHours, subMinutes } from 'date-fns';
+import { subHours, subMinutes, subMonths, subYears } from 'date-fns';
 import { UserAnalyseInfoDto } from './dtos/userAnalyseInfo.dto';
 import { mailDomain, seedPassword } from '../seed/data/user.data';
+import { FakerGenerateDto } from './dtos/faker-generate.dto';
 
 @Injectable()
 export class UsersService {
@@ -196,103 +197,131 @@ export class UsersService {
       .getMany();
   }
 
-  async addUserWithRole(role: UserRole): Promise<UserEntity> {
-    const firstName = Faker.name.firstName();
-    const lastName = Faker.name.lastName();
-    const user = await this.addUser({
-      fullName: `${firstName} ${lastName}`,
-      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${mailDomain}`,
-      password: seedPassword,
-      gender: Faker.random.arrayElement(['Woman', 'Man']),
-    });
-    user.role = role;
-    user.birthday = Faker.date.between('1966-01-01', '2001-12-31');
-    // user.avatar = Faker.image.imageUrl(150, 150, 'people');
-    user.avatar = `${Faker.image.imageUrl(
-      150,
-      150,
-      'people',
-    )}?random=${Date.now()}`;
-    user.location = Faker.address.country();
-    user.gender = Faker.random.arrayElement(['Woman', 'Man']);
-    user.lookingFor = Faker.random.arrayElement(['Woman', 'Man']);
-    user.kids = Faker.random.arrayElement([
-      'No Kids',
-      'One Kid',
-      'Two Kids',
-      'Three Kids',
-      'More then Three Kids',
-    ]);
-    user.body = Faker.random.arrayElement([
-      'Slim',
-      'Normal',
-      'Athletic',
-      'Muscular',
-      'Chubby',
-    ]);
-    user.profession = Faker.random.arrayElement([
-      'Seeking work',
-      'Trainee',
-      'Employee',
-      'Public Official',
-      'Housewife',
-      'Retired ',
-      'Self-employed',
-      'Student',
-    ]);
-    user.language = Faker.random.arrayElement([
-      'english',
-      'arabic',
-      'dutch',
-      'french',
-      'german',
-      'italian',
-      'portuguese',
-      'russian',
-      'spanish',
-      'turkish',
-      'hebrew',
-    ]);
-    user.education = Faker.random.arrayElement([
-      'Not finished',
-      'Secondary school',
-      'High school',
-      'High school diploma',
-      'College/University',
-      'Postgraduate degree',
-    ]);
-    user.relationshipStatus = Faker.random.arrayElement([
-      'Single',
-      'Relationship',
-      'Openrelationship',
-    ]);
-    user.height = Faker.random.arrayElement([
-      '149',
-      '154',
-      '159',
-      '164',
-      '169',
-      '174',
-      '180',
-      '185',
-      '190',
-      '195',
-      '200',
-      '205',
-      '210',
-    ]);
-    user.interestedIn = Faker.random.arrayElement([
-      'Single',
-      'Relationship',
-      'Openrelationship',
-    ]);
-    user.smoker = Faker.random.arrayElement([
-      'Non-Smoker',
-      'Ex-Smoker',
-      'Occasional Smoker',
-      'Regular Smoker',
-    ]);
-    user.alcohol = Faker.random.arrayElement(['Never', 'Sometimes', 'Gladly']);
-    return this.updateUser(user);
+  async addUserWithRole(
+    role: UserRole,
+    payload: FakerGenerateDto,
+  ): Promise<UserEntity> {
+    let res = null;
+    const nameArray = payload.nameList.split('\n');
+    const locationArray = payload.location.split('\n');
+
+    for (let index = 0; index < payload.count; index++) {
+      const firstName = Faker.name.firstName();
+      const lastName = Faker.name.lastName();
+      let fullName = `${firstName} ${lastName}`;
+      if (payload.nameList !== '') {
+        fullName = nameArray[index % nameArray.length];
+      }
+      const user = await this.addUser({
+        fullName: fullName,
+        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${mailDomain}`,
+        password: seedPassword,
+        gender: Faker.random.arrayElement(['Woman', 'Man']),
+      });
+      user.role = role;
+      const startDate = subYears(new Date(), payload.endAge);
+      const endDate = subYears(new Date(), payload.startAge);
+      user.birthday = Faker.date.between(startDate, endDate);
+      // user.avatar = Faker.image.imageUrl(150, 150, 'people');
+      user.avatar = `${Faker.image.imageUrl(
+        150,
+        150,
+        'people',
+      )}?random=${Date.now()}`;
+      user.location = Faker.address.country();
+      if (payload.location !== '') {
+        user.location = `${locationArray[index % locationArray.length]} ${
+          payload.country
+        }`;
+      }
+      user.gender = Faker.random.arrayElement(['Woman', 'Man']);
+      if (payload.gender !== '' && payload.gender !== 'Any') {
+        user.gender = payload.gender;
+      }
+      user.lookingFor = Faker.random.arrayElement(['Woman', 'Man']);
+      user.kids = Faker.random.arrayElement([
+        'No Kids',
+        'One Kid',
+        'Two Kids',
+        'Three Kids',
+        'More then Three Kids',
+      ]);
+      user.body = Faker.random.arrayElement([
+        'Slim',
+        'Normal',
+        'Athletic',
+        'Muscular',
+        'Chubby',
+      ]);
+      user.profession = Faker.random.arrayElement([
+        'Seeking work',
+        'Trainee',
+        'Employee',
+        'Public Official',
+        'Housewife',
+        'Retired ',
+        'Self-employed',
+        'Student',
+      ]);
+      user.language = Faker.random.arrayElement([
+        'english',
+        'arabic',
+        'dutch',
+        'french',
+        'german',
+        'italian',
+        'portuguese',
+        'russian',
+        'spanish',
+        'turkish',
+        'hebrew',
+      ]);
+      user.education = Faker.random.arrayElement([
+        'Not finished',
+        'Secondary school',
+        'High school',
+        'High school diploma',
+        'College/University',
+        'Postgraduate degree',
+      ]);
+      user.relationshipStatus = Faker.random.arrayElement([
+        'Single',
+        'Relationship',
+        'Openrelationship',
+      ]);
+      user.height = Faker.random.arrayElement([
+        '149',
+        '154',
+        '159',
+        '164',
+        '169',
+        '174',
+        '180',
+        '185',
+        '190',
+        '195',
+        '200',
+        '205',
+        '210',
+      ]);
+      user.interestedIn = Faker.random.arrayElement([
+        'Single',
+        'Relationship',
+        'Openrelationship',
+      ]);
+      user.smoker = Faker.random.arrayElement([
+        'Non-Smoker',
+        'Ex-Smoker',
+        'Occasional Smoker',
+        'Regular Smoker',
+      ]);
+      user.alcohol = Faker.random.arrayElement([
+        'Never',
+        'Sometimes',
+        'Gladly',
+      ]);
+      res = this.updateUser(user);
+    }
+    return res;
   }
 }

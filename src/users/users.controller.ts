@@ -36,6 +36,7 @@ import { UserAnalyseInfoDto } from './dtos/userAnalyseInfo.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 import { hash } from 'bcrypt';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { FakerGenerateDto } from './dtos/faker-generate.dto';
 
 @ApiTags('User')
 @Controller('sdate/user')
@@ -298,13 +299,9 @@ export class UsersController {
   @Post('generateFaker')
   async generateFaker(
     @Request() req,
-    @Body() body: UserIdDto,
+    @Body() body: FakerGenerateDto,
   ): Promise<UserEntity> {
-    const fakerCount = parseInt(body.id);
-    let res;
-    for (let index = 0; index < fakerCount; index++) {
-      res = await this.userService.addUserWithRole(UserRole.Moderator);
-    }
+    let res = await this.userService.addUserWithRole(UserRole.Moderator, body);
     return res;
   }
 
