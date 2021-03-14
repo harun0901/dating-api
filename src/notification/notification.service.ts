@@ -62,7 +62,6 @@ export class NotificationService {
         },
         order: {
           seen: 'DESC',
-          createdAt: 'DESC',
         },
       },
     });
