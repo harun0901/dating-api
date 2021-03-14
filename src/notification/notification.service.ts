@@ -60,6 +60,10 @@ export class NotificationService {
         receiver: {
           id: receiver.id,
         },
+        order: {
+          seen: 'DESC',
+          createdAt: 'DESC',
+        },
       },
     });
     return res.map((one) => one.toDto());
