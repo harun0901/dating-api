@@ -10,6 +10,9 @@ export class TransactionEntity extends SoftDelete {
   payer: UserEntity;
 
   @Column()
+  orderId: string;
+
+  @Column()
   amount: number;
 
   @Column()
@@ -25,6 +28,7 @@ export class TransactionEntity extends SoftDelete {
     return {
       ...super.toDto(),
       payer: this.payer,
+      orderId: this.orderId,
       amount: this.amount,
       type: this.type,
       balance: this.balance,

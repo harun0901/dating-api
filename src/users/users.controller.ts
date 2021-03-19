@@ -301,8 +301,7 @@ export class UsersController {
     @Request() req,
     @Body() body: FakerGenerateDto,
   ): Promise<UserEntity> {
-    let res = await this.userService.addUserWithRole(UserRole.Moderator, body);
-    return res;
+    return await this.userService.addUserWithRole(UserRole.Moderator, body);
   }
 
   @ApiBearerAuth()

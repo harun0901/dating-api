@@ -1,10 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class RegisterTransactionDto {
   @ApiProperty({ required: true, description: 'The Id of payer' })
   @IsNotEmpty()
   payer_id: string;
+
+  @ApiProperty({ required: true, description: 'The orderId of payment' })
+  @IsString()
+  @IsNotEmpty()
+  orderId: string;
 
   @ApiProperty({ required: true, description: 'The amount of payment' })
   @IsNumber()

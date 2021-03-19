@@ -88,6 +88,27 @@ export class NotificationController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'delete a notification',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('deleteNotification')
+  async deleteNotification(
+    @Request() req,
+    @Body() paraInfo: NotificationIdDto,
+  ): Promise<NotificationDto[]> {
+    await this.notificationService.deleteById(paraInfo.id);
+    const res = await this.userService.findById(req.user.id);
+    return await this.notificationService.findByUser(res);
+  }
+
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all notification' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles([

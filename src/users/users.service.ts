@@ -96,7 +96,11 @@ export class UsersService {
     const userIdList = [];
     const res = owner.receiveNotifications
       .filter((value) => value.pattern === NotificationType.Visit)
-      .map((item) => item.sender)
+      .map((item) => {
+        const sender = item.sender;
+        sender.state = item.seen;
+        return sender;
+      })
       .filter((value, index, self) => {
         if (userIdList.indexOf(value.id) >= 0) {
           return false;
@@ -105,6 +109,9 @@ export class UsersService {
           return true;
         }
       });
+    res.sort(function (a, b) {
+      return a.state - b.state;
+    });
     return res;
   }
 
@@ -137,7 +144,9 @@ export class UsersService {
   }
 
   async find(): Promise<UserEntity[]> {
-    return this.userRepository.find();
+    return this.userRepository.find({
+      relations: ['categoryList'],
+    });
   }
 
   async userCreateAnalyze(): Promise<any[]> {

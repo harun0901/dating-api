@@ -11,6 +11,7 @@ import { UserEntity } from '../users/entities/user.entity';
 import { UserRole } from '../users/enums';
 import { UsersService } from '../users/users.service';
 import { UpdateTransactionDto } from './dtos/update-transaction.dto';
+import { PurchaseTransactionDto } from './dtos/purchase-transaction.dto';
 
 @Injectable()
 export class TransactionService {
@@ -20,6 +21,12 @@ export class TransactionService {
     private userService: UsersService,
   ) {}
 
+  async findAll(): Promise<TransactionEntity[]> {
+    return this.transactionRepository.find({
+      relations: ['payer'],
+    });
+  }
+
   async findByUserId(userId: string): Promise<TransactionEntity[]> {
     return this.transactionRepository.find({
       where: {
@@ -28,6 +35,15 @@ export class TransactionService {
         },
       },
     });
+  }
+
+  async getPurchase(): Promise<any> {
+    const ret = this.transactionRepository
+      .createQueryBuilder('transaction')
+      .select('transaction.payer', 'payer')
+      .addSelect('SUM(transaction.amount)', 'amount')
+      .groupBy('transaction.payer');
+    return ret;
   }
 
   async registerTransaction(

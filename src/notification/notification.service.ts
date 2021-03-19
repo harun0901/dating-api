@@ -115,6 +115,11 @@ export class NotificationService {
     return list.length;
   }
 
+  async deleteById(id: string): Promise<void> {
+    const item = await this.notificationEntityRepository.findOne({ id });
+    await this.notificationEntityRepository.remove(item);
+  }
+
   async findById(id: string): Promise<NotificationEntity> {
     return this.notificationEntityRepository.findOne({ id });
   }

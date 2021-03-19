@@ -7,6 +7,9 @@ export class TransactionDto extends CommonDto {
   @ApiProperty({ description: `the payment payer` })
   payer: UserEntity;
 
+  @ApiProperty({ description: `the payment orderId` })
+  orderId: string;
+
   @ApiProperty({ description: `the payment amount` })
   amount: number;
 
