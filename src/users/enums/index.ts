@@ -9,3 +9,5 @@ export enum Gender {
   Man = 'Man',
   Woman = 'Woman',
 }
+
+export const Search_Limit_Count = '18';

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Like, Repository } from 'typeorm';
 import * as Faker from 'faker';
 
-import { UserRole } from './enums';
+import { Search_Limit_Count, UserRole } from './enums';
 import { UserEntity } from './entities/user.entity';
 import { RegisterUserDto } from '../auth/dtos/register-user.dto';
 import { getFromDto } from '../common/utils/repository.util';
@@ -173,6 +173,7 @@ export class UsersService {
         .limit(Number.parseInt(limit_count))
         .getMany();
     } else {
+      limit_count = Search_Limit_Count;
       const curDate = new Date();
       const endYear = curDate.getFullYear() - searchKey.startAge;
       const startYear = curDate.getFullYear() - searchKey.endAge;
@@ -181,8 +182,8 @@ export class UsersService {
       return this.userRepository
         .createQueryBuilder()
         .where('id NOT IN (:...ids)', { ids: idList })
-        .andWhere('gender = (:lookingFor)', {
-          lookingFor: searchKey.lookingFor,
+        .andWhere('gender like (:lookingFor)', {
+          lookingFor: `${searchKey.lookingFor}`,
         })
         .andWhere('birthday >= (:startDate)', {
           startDate: startDate,
