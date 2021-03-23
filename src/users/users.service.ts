@@ -146,6 +146,9 @@ export class UsersService {
   async find(): Promise<UserEntity[]> {
     return this.userRepository.find({
       relations: ['categoryList'],
+      order: {
+        createdAt: "DESC",
+      }
     });
   }
 
