@@ -20,6 +20,7 @@ import { UserRole } from '../users/enums';
 import { NotificationState, NotificationType } from './enums';
 import { NotificationIdDto } from './dtos/notificationId.dto';
 import { AddModeratorNotificationDto } from './dtos/addModeratorNotification.dto';
+import { InboxDto } from './dtos/inbox.dto';
 
 @ApiTags('Notification')
 @Controller('sdate/notification')
@@ -89,6 +90,27 @@ export class NotificationController {
 
   @ApiBearerAuth()
   @ApiOperation({
+    summary: 'Update a inboxitem',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('updateInboxItem')
+  async updateInboxItem(
+    @Request() req,
+    @Body() payload: InboxDto,
+  ): Promise<NotificationDto[]> {
+    await this.notificationService.updateByItem(payload);
+    const res = await this.userService.findById(req.user.id);
+    return await this.notificationService.findByUser(res);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
     summary: 'delete a notification',
   })
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -109,6 +131,27 @@ export class NotificationController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'delete a inbox item',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('deleteInboxItem')
+  async deleteInboxItem(
+    @Request() req,
+    @Body() payload: InboxDto,
+  ): Promise<NotificationDto[]> {
+    await this.notificationService.deleteByItem(payload);
+    const res = await this.userService.findById(req.user.id);
+    return await this.notificationService.findByUser(res);
+  }
+
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all notification' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles([
@@ -121,6 +164,21 @@ export class NotificationController {
   async getAllNotification(@Request() req): Promise<NotificationDto[]> {
     const owner = await this.userService.findById(req.user.id);
     return await this.notificationService.findByUser(owner);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all notification' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Get('getInboxList')
+  async getInboxList(@Request() req): Promise<NotificationDto[]> {
+    const owner = await this.userService.findById(req.user.id);
+    return await this.notificationService.findInboxList(owner);
   }
 
   @ApiBearerAuth()

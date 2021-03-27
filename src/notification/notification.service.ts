@@ -9,6 +9,7 @@ import { NotificationDto } from './dtos/notification.dto';
 import { NotificationState, NotificationType } from './enums';
 import { Between, Not, Repository } from 'typeorm';
 import { subMonths } from 'date-fns';
+import { InboxDto } from './dtos/inbox.dto';
 
 @Injectable()
 export class NotificationService {
@@ -51,6 +52,22 @@ export class NotificationService {
     } else {
       return NotificationEntity[0];
     }
+  }
+
+  async findInboxList(receiver: UserEntity): Promise<NotificationDto[]> {
+    const idList = await this.notificationEntityRepository
+      .createQueryBuilder()
+      .select('max(id)', 'id')
+      .where('receiver.id = :recvId')
+      .groupBy('sender.id')
+      .addGroupBy('pattern')
+      .setParameters({ recvId: receiver.id })
+      .getRawMany();
+    console.log('idList = ', idList);
+    return this.notificationEntityRepository
+      .createQueryBuilder()
+      .where('id IN (:...ids)', { ids: idList })
+      .getMany();
   }
 
   async findByUser(receiver: UserEntity): Promise<NotificationDto[]> {
@@ -118,6 +135,27 @@ export class NotificationService {
   async deleteById(id: string): Promise<void> {
     const item = await this.notificationEntityRepository.findOne({ id });
     await this.notificationEntityRepository.remove(item);
+  }
+
+  async deleteByItem(payload: InboxDto): Promise<void> {
+    await this.notificationEntityRepository
+      .createQueryBuilder()
+      .delete()
+      .where('sender.id = :senderId', { senderId: payload.senderId })
+      .andWhere('receiver.id = :receiverId', { receiverId: payload.receiverId })
+      .andWhere('pattern = :patternStr', { patternStr: payload.pattern })
+      .execute();
+  }
+
+  async updateByItem(payload: InboxDto): Promise<void> {
+    await this.notificationEntityRepository
+      .createQueryBuilder()
+      .update()
+      .set({ seen: NotificationState.Seen })
+      .where('sender.id = :senderId', { senderId: payload.senderId })
+      .andWhere('receiver.id = :receiverId', { receiverId: payload.receiverId })
+      .andWhere('pattern = :patternStr', { patternStr: payload.pattern })
+      .execute();
   }
 
   async findById(id: string): Promise<NotificationEntity> {
