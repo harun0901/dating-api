@@ -79,8 +79,8 @@ export class NotificationService {
         },
       },
       order: {
+        createdAt: 'ASC',
         seen: 'ASC',
-        createdAt: 'DESC',
       },
     });
     return res.map((one) => one.toDto());
@@ -94,6 +94,9 @@ export class NotificationService {
           id: receiver.id,
         },
         seen: NotificationState.NotSeen,
+      },
+      order: {
+        createdAt: 'ASC',
       },
     });
     return res.map((one) => one.toDto());
