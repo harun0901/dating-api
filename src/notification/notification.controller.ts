@@ -40,9 +40,9 @@ export class NotificationController {
   ): Promise<NotificationDto> {
     const owner = await this.userService.findById(req.user.id);
     const receiver = await this.userService.findById(body.receiver_id);
-
     return await this.notificationService.addNotification(
       body.pattern,
+      body.content,
       owner,
       receiver,
     );
@@ -60,6 +60,7 @@ export class NotificationController {
 
     return await this.notificationService.addNotification(
       body.pattern,
+      body.content,
       owner,
       receiver,
     );

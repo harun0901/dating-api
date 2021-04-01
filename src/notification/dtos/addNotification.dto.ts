@@ -9,4 +9,7 @@ export class AddNotificationDto extends CommonDto {
 
   @ApiProperty({ description: `the notification pattern` })
   pattern: string;
+
+  @ApiProperty({ description: `the notification content` })
+  content: string;
 }

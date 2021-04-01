@@ -12,4 +12,7 @@ export class AddModeratorNotificationDto {
 
   @ApiProperty({ description: `the notification pattern` })
   pattern: string;
+
+  @ApiProperty({ description: `the notification content` })
+  content: string;
 }

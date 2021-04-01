@@ -15,6 +15,9 @@ export class NotificationEntity extends SoftDelete {
   @Column({ default: '' })
   pattern: string;
 
+  @Column({ default: '' })
+  content: string;
+
   @Column({ default: 0 })
   seen: number;
 
@@ -24,6 +27,7 @@ export class NotificationEntity extends SoftDelete {
       sender: this.sender,
       receiver: this.receiver,
       pattern: this.pattern,
+      content: this.content,
       seen: this.seen,
     };
   }
