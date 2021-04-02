@@ -5,23 +5,23 @@ export class SendModeratorMessageDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  readonly senderId: string;
+  senderId: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  readonly receiverId: string;
+  receiverId: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  readonly text: string;
+  text: string;
 
   @ApiProperty()
   @IsString()
-  readonly gift: string;
+  gift: string;
 
   @ApiProperty()
   @IsString()
-  readonly kiss: string;
+  kiss: string;
 }

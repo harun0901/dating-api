@@ -187,6 +187,15 @@ export class ChatController {
   ): Promise<ChatDto> {
     const sender = await this.userService.findById(body.senderId);
     const receiver = await this.userService.findById(body.receiverId);
+    let tmpText = body.text;
+    if (tmpText.indexOf('$SENDER') > -1) {
+      tmpText = tmpText.replace('$SENDER', sender.fullName);
+      body.text = tmpText;
+    }
+    if (tmpText.indexOf('$RECEIVER') > -1) {
+      tmpText = tmpText.replace('$RECEIVER', receiver.fullName);
+      body.text = tmpText;
+    }
     ChatController.validateChatRequest(sender, receiver);
     return this.chatService.sendMessage(body, sender, receiver);
   }
