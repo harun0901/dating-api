@@ -37,6 +37,7 @@ import { UpdatePasswordDto } from './dtos/update-password.dto';
 import { hash } from 'bcrypt';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { FakerGenerateDto } from './dtos/faker-generate.dto';
+import { UserDataDto } from './dtos/userData.dto';
 
 @ApiTags('User')
 @Controller('sdate/user')
@@ -71,9 +72,12 @@ export class UsersController {
     UserRole.Customer,
   ])
   @Put('updateAvatar')
-  async updateAvatar(@Request() req, @Body() dto: UserIdDto): Promise<UserDto> {
-    let owner = await this.userService.findById(req.user.id);
-    owner.avatar = dto.id;
+  async updateAvatar(
+    @Request() req,
+    @Body() dto: UserDataDto,
+  ): Promise<UserDto> {
+    let owner = await this.userService.findById(dto.id);
+    owner.avatar = dto.data;
     owner = await this.userService.updateUser(owner);
     return owner.toDto();
   }
@@ -498,6 +502,7 @@ export class UsersController {
       user.kids = dto.kids;
       user.location = dto.location;
       user.about = dto.about;
+      user.state = dto.state;
     } else {
       throw new BadRequestException(
         "Your role couldn't change the user basic info.",

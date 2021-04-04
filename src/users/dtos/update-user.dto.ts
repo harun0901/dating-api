@@ -66,6 +66,9 @@ export class UpdateUserDto {
 
   @ApiProperty({ description: `the user's description` })
   about: string;
+
+  @ApiProperty({ description: `the user's state` })
+  state: number;
   //
   // @ApiProperty({ description: `the user's paypal address` })
   // paypal: string;
