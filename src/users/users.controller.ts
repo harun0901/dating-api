@@ -497,6 +497,7 @@ export class UsersController {
       user.alcohol = dto.alcohol;
       user.kids = dto.kids;
       user.location = dto.location;
+      user.about = dto.about;
     } else {
       throw new BadRequestException(
         "Your role couldn't change the user basic info.",
