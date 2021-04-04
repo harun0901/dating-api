@@ -10,4 +10,11 @@ export enum Gender {
   Woman = 'Woman',
 }
 
+export enum UserState {
+  PENDING = 0,
+  NORMAL = 1,
+  SUSPEND = 2,
+  DELETED = 3,
+}
+
 export const Search_Limit_Count = '18';

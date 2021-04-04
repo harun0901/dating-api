@@ -20,7 +20,7 @@ import { ApiImplicitParam } from '@nestjs/swagger/dist/decorators/api-implicit-p
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { UserRole } from './enums';
+import { UserRole, UserState } from './enums';
 import { ChangeRoleDto } from './dtos/change-role.dto';
 import { UserDto } from './dtos/user.dto';
 import { UsersService } from './users.service';
@@ -552,7 +552,10 @@ export class UsersController {
   @Post('deleteUser')
   async deleteUser(@Request() req, @Body() dto: UserIdDto): Promise<boolean> {
     if (req.user.role === UserRole.Admin || dto.id === req.user.id) {
-      await this.userService.removeById(dto.id);
+      // await this.userService.removeById(dto.id);
+      let user = await this.userService.findById(dto.id);
+      user.state = UserState.DELETED;
+      user = await this.userService.updateUser(user);
     } else {
       throw new BadRequestException(
         "Your role couldn't change the user basic info.",

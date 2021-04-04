@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Like, Repository } from 'typeorm';
 import * as Faker from 'faker';
 
-import { Search_Limit_Count, UserRole } from './enums';
+import { Search_Limit_Count, UserRole, UserState } from './enums';
 import { UserEntity } from './entities/user.entity';
 import { RegisterUserDto } from '../auth/dtos/register-user.dto';
 import { getFromDto } from '../common/utils/repository.util';
@@ -147,8 +147,9 @@ export class UsersService {
     return this.userRepository.find({
       relations: ['categoryList'],
       order: {
-        createdAt: "DESC",
-      }
+        createdAt: 'DESC',
+        state: UserState.NORMAL,
+      },
     });
   }
 
