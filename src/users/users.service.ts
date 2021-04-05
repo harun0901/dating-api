@@ -206,7 +206,8 @@ export class UsersService {
 
   async findUsersByIds(idList: string[]): Promise<UserEntity[]> {
     return this.userRepository
-      .createQueryBuilder()
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.blockedList', 'blockedList')
       .where('id IN (:...ids)', { ids: idList })
       .getMany();
   }
