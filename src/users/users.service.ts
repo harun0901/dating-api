@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Like, Repository } from 'typeorm';
+import { Between, In, Like, Repository } from 'typeorm';
 import * as Faker from 'faker';
 
 import { Search_Limit_Count, UserRole, UserState } from './enums';
@@ -205,6 +205,10 @@ export class UsersService {
   }
 
   async findUsersByIds(idList: string[]): Promise<UserEntity[]> {
+    return this.userRepository.find({
+      relations: ['blockedList'],
+      where: { id: In(idList) },
+    });
     return this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.blockedList', 'blockedList')
