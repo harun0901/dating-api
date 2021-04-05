@@ -13,13 +13,38 @@ import {
 import { Gender, UserRole } from '../users/enums';
 import { seedGeneralUserCount, seedModeratorCount } from './consts';
 import { UserEntity } from '../users/entities/user.entity';
+import { PackageService } from '../package/package.service';
+import { packageList } from './data/package';
 
 @Injectable()
 export class SeedService {
-  constructor(private userService: UsersService) {}
+  constructor(
+    private userService: UsersService,
+    private packageService: PackageService,
+  ) {}
 
   async start() {
+    await this.seedPackages();
     await this.seedUsers();
+  }
+
+  async seedPackages() {
+    // seed general users
+    console.log('Adding packages...');
+    const packageCount = await this.packageService.count();
+    if (packageCount) {
+      console.log('Skipped package seed');
+      return;
+    }
+    for (let i = 0; i < packageList.length; i++) {
+      await this.packageService.registerPackage({
+        index: packageList[i].index,
+        price: packageList[i].price,
+        credit: packageList[i].credit,
+        bonus: packageList[i].bonus,
+      });
+    }
+    console.log('Finished adding seed packages.');
   }
 
   async seedUsers() {

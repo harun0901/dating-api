@@ -7,6 +7,11 @@ export class UpdateGiftDto {
   @IsNotEmpty()
   giftId: string;
 
+  @ApiProperty({ required: true, description: 'The gift price' })
+  @IsNumber()
+  @IsNotEmpty()
+  price: number;
+
   @ApiProperty({ required: true, description: 'The gift state' })
   @IsNumber()
   @IsNotEmpty()

@@ -6,7 +6,12 @@ export class RegisterGiftDto {
   @IsNotEmpty()
   path: string;
 
-  @ApiProperty({ required: true, description: 'The transaction state' })
+  @ApiProperty({ required: true, description: 'The gift price' })
+  @IsNumber()
+  @IsNotEmpty()
+  price: number;
+
+  @ApiProperty({ required: true, description: 'The gift state' })
   @IsNumber()
   @IsNotEmpty()
   state: number;

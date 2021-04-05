@@ -30,6 +30,7 @@ export class GiftService {
   ): Promise<GiftEntity> {
     const gift = await this.findById(dto.giftId);
     gift.state = dto.state;
+    gift.price = dto.price;
     return this.giftRepository.save(gift);
   }
 
@@ -53,6 +54,9 @@ export class GiftService {
     return this.giftRepository.find({
       where: {
         state: state,
+      },
+      order: {
+        id: 'ASC',
       },
     });
   }

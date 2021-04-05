@@ -8,6 +8,9 @@ export class GiftEntity extends SoftDelete {
   @Column()
   path: string;
 
+  @Column({ default: 0 })
+  price: number;
+
   @Column({ default: 1 })
   state: number;
 
@@ -15,6 +18,7 @@ export class GiftEntity extends SoftDelete {
     return {
       ...super.toDto(),
       path: this.path,
+      price: this.price,
       state: this.state,
     };
   }
