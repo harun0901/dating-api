@@ -38,6 +38,7 @@ import { hash } from 'bcrypt';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { FakerGenerateDto } from './dtos/faker-generate.dto';
 import { UserDataDto } from './dtos/userData.dto';
+import { UpdateBalanceDto } from './dtos/updateBalance.dto';
 
 @ApiTags('User')
 @Controller('sdate/user')
@@ -597,6 +598,29 @@ export class UsersController {
         "Your role couldn't change the user basic info.",
       );
     }
+    user = await this.userService.updateUser(user);
+    return user.toDto();
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Update the user balance. Only admin users can hava access to change the other user basic info',
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([
+    UserRole.SuperAdmin,
+    UserRole.Admin,
+    UserRole.Moderator,
+    UserRole.Customer,
+  ])
+  @Put('updateBalance')
+  async updateBalance(
+    @Request() req,
+    @Body() dto: UpdateBalanceDto,
+  ): Promise<UserDto> {
+    let user = await this.userService.findById(req.user.id);
+    user.balance = user.balance + dto.amount;
     user = await this.userService.updateUser(user);
     return user.toDto();
   }
