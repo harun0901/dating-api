@@ -14,6 +14,7 @@ import { TransactionModule } from './transaction/transaction.module';
 import { GiftModule } from './gift/gift.module';
 import { CategoryModule } from './category/category.module';
 import { PackageModule } from './package/package.module';
+import { BasicModule } from './basic/basic.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PackageModule } from './package/package.module';
     GiftModule,
     CategoryModule,
     PackageModule,
+    BasicModule,
   ],
   controllers: [AppController],
   providers: [AppService],

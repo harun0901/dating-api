@@ -15,21 +15,41 @@ import { seedGeneralUserCount, seedModeratorCount } from './consts';
 import { UserEntity } from '../users/entities/user.entity';
 import { PackageService } from '../package/package.service';
 import { packageList } from './data/package';
+import { basicData } from './data/basic';
+import { BasicService } from '../basic/basic.service';
 
 @Injectable()
 export class SeedService {
   constructor(
     private userService: UsersService,
     private packageService: PackageService,
+    private basicService: BasicService,
   ) {}
 
   async start() {
+    await this.seedBasicInfo();
     await this.seedPackages();
     await this.seedUsers();
   }
+  async seedBasicInfo() {
+    // seed basic Information
+    console.log('Adding basic...');
+    const basicCount = await this.basicService.count();
+    if (basicCount) {
+      console.log('Skipped basic information seed');
+      return;
+    }
+    for (let i = 0; i < basicData.length; i++) {
+      await this.basicService.registerBasic({
+        key: basicData[i].key,
+        value: basicData[i].value,
+      });
+    }
+    console.log('Finished adding seed basic information.');
+  }
 
   async seedPackages() {
-    // seed general users
+    // seed packages
     console.log('Adding packages...');
     const packageCount = await this.packageService.count();
     if (packageCount) {

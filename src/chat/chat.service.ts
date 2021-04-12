@@ -45,6 +45,7 @@ export class ChatService {
     chat.text = payload.text;
     chat.gift = payload.gift;
     chat.kiss = payload.kiss;
+    chat.gif = payload.gif;
     chat.seen = ChatDefault.SEEN;
     const res = await this.chatRepository.save(chat);
     //------make seen all messages-----------------------
@@ -91,6 +92,7 @@ export class ChatService {
     chat.text = '';
     chat.gift = '';
     chat.kiss = '';
+    chat.gif = '';
     chat.seen = ChatDefault.SEEN;
     chat.createdAt = new Date().toString();
     chat.updatedAt = new Date().toString();
@@ -181,6 +183,17 @@ export class ChatService {
     const list = await this.chatRepository.find({
       where: {
         kiss: Not(''),
+        createdAt: BeforeDate(new Date()),
+      },
+    });
+    return list.length;
+  }
+
+  async gifCount(): Promise<number> {
+    const BeforeDate = (date: Date) => Between(subMonths(date, 1), date);
+    const list = await this.chatRepository.find({
+      where: {
+        gif: Not(''),
         createdAt: BeforeDate(new Date()),
       },
     });

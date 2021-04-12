@@ -26,5 +26,8 @@ export class ChatDto extends CommonDto {
   readonly kiss: string;
 
   @ApiProperty()
+  readonly gif: string;
+
+  @ApiProperty()
   readonly seen: number;
 }

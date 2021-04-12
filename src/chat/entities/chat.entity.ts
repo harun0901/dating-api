@@ -28,6 +28,9 @@ export class ChatEntity extends SoftDelete {
   kiss: string;
 
   @Column({ default: '' })
+  gif: string;
+
+  @Column({ default: '' })
   other: string;
 
   @Column({ default: 0 })
@@ -50,6 +53,7 @@ export class ChatEntity extends SoftDelete {
       text: this.text,
       gift: this.gift,
       kiss: this.kiss,
+      gif: this.gif,
       seen: this.seen,
       createdAt: this.createdAt.toString(),
       updatedAt: this.updatedAt.toString(),

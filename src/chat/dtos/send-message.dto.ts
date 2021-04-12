@@ -19,4 +19,8 @@ export class SendMessageDto {
   @ApiProperty()
   @IsString()
   readonly kiss: string;
+
+  @ApiProperty()
+  @IsString()
+  readonly gif: string;
 }

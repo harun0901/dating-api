@@ -24,4 +24,8 @@ export class SendModeratorMessageDto {
   @ApiProperty()
   @IsString()
   kiss: string;
+
+  @ApiProperty()
+  @IsString()
+  gif: string;
 }
