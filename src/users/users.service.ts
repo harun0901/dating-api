@@ -1,7 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpService, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, In, Like, Repository } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
+import { subMinutes, subYears } from 'date-fns';
+import * as fs from 'fs';
+
+import * as uuid from 'uuid';
 import * as Faker from 'faker';
+import * as aws from 'aws-sdk';
+import * as requestLib from 'request';
+import * as Blob from 'cross-blob';
 
 import { Search_Limit_Count, UserRole, UserState } from './enums';
 import { UserEntity } from './entities/user.entity';
@@ -9,16 +16,28 @@ import { RegisterUserDto } from '../auth/dtos/register-user.dto';
 import { getFromDto } from '../common/utils/repository.util';
 import { NotificationType } from '../notification/enums';
 import { UserSearchDto } from './dtos/userSearch.dto';
-import { subHours, subMinutes, subMonths, subYears } from 'date-fns';
-import { UserAnalyseInfoDto } from './dtos/userAnalyseInfo.dto';
 import { mailDomain, seedPassword } from '../seed/data/user.data';
 import { FakerGenerateDto } from './dtos/faker-generate.dto';
+import { S3_environment } from '../upload/enums';
+import { map } from 'rxjs/operators';
+
+const request = requestLib.defaults({ encoding: null });
+
+aws.config.update({
+  accessKeyId: S3_environment.ACCESS_KEY_ID,
+  secretAccessKey: S3_environment.SECRET_ACCESS_KEY,
+  region: S3_environment.AWS_REGION,
+});
+const s3 = new aws.S3();
 
 @Injectable()
 export class UsersService {
+  URL_EXPIRATION_SECONDS = 300;
+
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    private http: HttpService,
   ) {}
 
   async findByEmail(email: string): Promise<UserEntity> {
@@ -247,6 +266,18 @@ export class UsersService {
         150,
         'people',
       )}?random=${Date.now()}`;
+
+      // avatar download start
+      // console.log('avatar = ', user.avatar);
+      const imageBuffer = await this.http
+        .get(user.avatar, { responseType: 'arraybuffer' })
+        .toPromise()
+        .then((res) => new Uint8Array(res.data));
+
+      const Key = `${uuid.v4()}_${firstName}.png`;
+      const buffer = imageBuffer.buffer;
+      user.avatar = await this.uploadToS3WithBuffer(Buffer.from(buffer), Key);
+
       user.location = Faker.address.country();
       if (payload.location !== '') {
         user.location = `${locationArray[index % locationArray.length]} ${
@@ -342,5 +373,26 @@ export class UsersService {
       res = this.updateUser(user);
     }
     return res;
+  }
+
+  uploadToS3WithBuffer(
+    buffer: Buffer,
+    path: string,
+    meta = {},
+  ): Promise<string> {
+    const urlPrefix = 'https://kinkflirt-bucket.s3.eu-north-1.amazonaws.com';
+    return new Promise<string>((resolve, reject) => {
+      s3.putObject({
+        Body: buffer,
+        Bucket: S3_environment.ACCESS_BUCKET,
+        Key: path,
+        Metadata: meta,
+      })
+        .promise()
+        .then(
+          () => resolve(`${urlPrefix}/${path}`),
+          (error) => reject(error),
+        );
+    });
   }
 }

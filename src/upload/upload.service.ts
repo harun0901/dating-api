@@ -7,7 +7,6 @@ import { S3_environment } from './enums';
 import { SendUploadDto } from './dtos/sendUpload.dto';
 import { UploadEntity } from './entities/upload.entity';
 import { getFromDto } from '../common/utils/repository.util';
-import { UpdateTransactionDto } from '../transaction/dtos/update-transaction.dto';
 import { UsersService } from '../users/users.service';
 import { UpdateUploadDto } from './dtos/update-upload.dto';
 import { GetUploadDto } from './dtos/get-upload.dto';
@@ -63,7 +62,7 @@ export class UploadService {
         uploader: {
           id: payload.uploaderId,
         },
-        state: payload.state
+        state: payload.state,
       },
     });
   }
@@ -72,10 +71,7 @@ export class UploadService {
     dto: SendUploadDto,
     throwError = true,
   ): Promise<UploadEntity> {
-    const upload = getFromDto<UploadEntity>(
-      dto,
-      new UploadEntity(),
-    );
+    const upload = getFromDto<UploadEntity>(dto, new UploadEntity());
     upload.uploader = await this.userService.findById(dto.uploaderId);
     return this.uploadRepository.save(upload);
   }
