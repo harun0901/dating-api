@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 export function ormConfig(): TypeOrmModuleOptions {
   dotenv.config();
   const connectionOptions = PostgressConnectionStringParser.parse(
-    process.env.DATABASE_URL,
+    process.env.DATE_API_DATABASE_URL,
   );
   return {
     type: 'postgres',
@@ -16,7 +16,7 @@ export function ormConfig(): TypeOrmModuleOptions {
     password: connectionOptions.password,
     database: connectionOptions.database,
     extra: {
-      ssl: true, //true for hosting.-test-mode
+      ssl: false, //true for hosting.-test-mode
     },
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
 
@@ -26,7 +26,7 @@ export function ormConfig(): TypeOrmModuleOptions {
     // Run migrations automatically,
     // you can disable this if you prefer running migration manually.
     migrationsRun: false,
-    logging: true,
+    logging: false,
     logger: 'file',
 
     migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
